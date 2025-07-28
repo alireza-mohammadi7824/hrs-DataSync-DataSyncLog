@@ -12,5 +12,6 @@ namespace HRSDataIntegration
         string OldColumnValue(string oldTableName , string oldColumnName , string newColumnValue);
         string DomainMappingCodeOldColumnValue(string oldTableName, string oldColumnName, string newColumnValue);
         int GetTableCount(string tableName);
+        void UpdateDataSyncLog(Guid id,bool isSuccedded , string Exception = null);
     }
 }

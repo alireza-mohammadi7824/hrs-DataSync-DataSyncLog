@@ -65,6 +65,7 @@ public class HRSDataIntegrationDbContext :
     public DbSet<JobRadeh> JobRadeh { get; set; }
     public DbSet<JobRasteh> JobRasteh { get; set; }
     public DbSet<MappingId> MappingId { get; set; }
+    public DbSet<DataSyncLog> DataSyncLog { get; set; }
     #endregion Job
 
     #region Post

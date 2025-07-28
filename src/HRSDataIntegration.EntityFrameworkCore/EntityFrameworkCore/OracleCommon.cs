@@ -149,6 +149,24 @@ namespace HRSToHRDataConverter.Common
             return (int)countMethod.Invoke(null, new object[] { dbSet });
         }
 
-        
+        public void UpdateDataSyncLog(Guid id, bool isSuccedded, string Exception = null)
+        {
+            var entity  = _sQLDatabaseContext.DataSyncLog.FirstOrDefault(x => x.RecordId == id);
+            if (entity == null)
+            {
+                return;
+            }
+            else if (entity != null && isSuccedded)
+            {
+                entity.IsDone = true;
+                entity.LastModificationTime = DateTime.Now.ToString();
+            }
+            else if (entity != null && !isSuccedded) {
+                entity.IsDone = false;
+                entity.ExceptionMessage = Exception;
+                entity.LastModificationTime = DateTime.Now.ToString();
+            }
+            _sQLDatabaseContext.SaveChanges();
+        }
     }
 }
