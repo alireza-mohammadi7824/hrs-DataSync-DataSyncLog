@@ -1,0 +1,89 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.Account": {
+      "version": "8.3.1",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "8.3.1",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity": {
+      "version": "8.3.1",
+      "isInstalled": true
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "8.3.1",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "HRSDataIntegration.Application": {
+      "path": "src/HRSDataIntegration.Application/HRSDataIntegration.Application.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.Application.Tests": {
+      "path": "test/HRSDataIntegration.Application.Tests/HRSDataIntegration.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.Domain.Shared": {
+      "path": "src/HRSDataIntegration.Domain.Shared/HRSDataIntegration.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.Application.Contracts": {
+      "path": "src/HRSDataIntegration.Application.Contracts/HRSDataIntegration.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.HttpApi": {
+      "path": "src/HRSDataIntegration.HttpApi/HRSDataIntegration.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.HttpApi.Client": {
+      "path": "src/HRSDataIntegration.HttpApi.Client/HRSDataIntegration.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.Web": {
+      "path": "src/HRSDataIntegration.Web/HRSDataIntegration.Web.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.Web.Tests": {
+      "path": "test/HRSDataIntegration.Web.Tests/HRSDataIntegration.Web.Tests.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.EntityFrameworkCore.Tests": {
+      "path": "test/HRSDataIntegration.EntityFrameworkCore.Tests/HRSDataIntegration.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.EntityFrameworkCore": {
+      "path": "src/HRSDataIntegration.EntityFrameworkCore/HRSDataIntegration.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.TestBase": {
+      "path": "test/HRSDataIntegration.TestBase/HRSDataIntegration.TestBase.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.Domain.Tests": {
+      "path": "test/HRSDataIntegration.Domain.Tests/HRSDataIntegration.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/HRSDataIntegration.HttpApi.Client.ConsoleTestApp/HRSDataIntegration.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "HRSDataIntegration.DbMigrator": {
+      "path": "src/HRSDataIntegration.DbMigrator/HRSDataIntegration.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "HRSDataIntegration.Domain": {
+      "path": "src/HRSDataIntegration.Domain/HRSDataIntegration.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

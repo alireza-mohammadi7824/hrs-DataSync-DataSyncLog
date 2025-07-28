@@ -1,0 +1,13 @@
+﻿{
+  "applications": {
+    "HRSDataIntegration.Web": {
+      "type": "dotnet-project",
+      "launchUrl": "https://localhost:44309",
+      "path": "../../../src/HRSDataIntegration.Web/HRSDataIntegration.Web.csproj",
+      "kubernetesService": ".*-web$",
+      "execution": {
+        "order": 2
+      }
+    }
+  }
+}

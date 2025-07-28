@@ -1,0 +1,39 @@
+{
+  "id": "33a02d66-9f02-4796-ab3e-f22a49c7865b",
+  "template": "app",
+  "versions": {
+    "AbpFramework": "8.3.1",
+    "AbpStudio": "0.9.1"
+  },
+  "modules": {
+    "HRSDataIntegration": {
+      "path": "HRSDataIntegration.abpmdl"
+    }
+  },
+  "runProfiles": {
+    "Default": {
+      "path": "etc/abp-studio/run-profiles/Default.abprun.json"
+    }
+  },
+  "options": {
+    "httpRequests": {
+      "ignoredUrls": [
+        "^/metrics$"
+      ]
+    }
+  },
+  "creatingStudioConfiguration": {
+    "template": "app",
+    "createdAbpStudioVersion": "0.9.1",
+    "tiered": "false",
+    "uiFramework": "mvc",
+    "databaseProvider": "ef",
+    "databaseManagementSystem": "sqlserver",
+    "separateTenantSchema": "false",
+    "theme": "leptonx-lite",
+    "themeStyle": "",
+    "mobileFramework": "none",
+    "publicWebsite": "false",
+    "socialLogin": ""
+  }
+}
