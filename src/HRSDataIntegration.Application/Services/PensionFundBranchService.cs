@@ -24,82 +24,117 @@ namespace HRSDataIntegration.Services
 
         public void ConvertToPensionFundBranch_Insert_ToOracleTable(string ID)
         {
-            var pnsionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
-            var pensionFundBranch = pnsionFundBranchQueryable
-                .Where(x=>x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    Code = x.Code,
-                    Title = x.Title,
-                    Name = x.Title,
-                    PoliticalProvinceCaption = x.CountryDivisionId
-                })
-                .FirstOrDefault();
-
-            var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
-
-            var TBCTAMIN_BRANCH = new TBCTAMIN_BRANCH()
+            try
             {
-                CODE = pensionFundBranch.Code.ToString(),
-                CAPTION = pensionFundBranch.Title.ToString(),
-                NAME = pensionFundBranch.Name.ToString(),
-                POLITICAL_PROVINCE_CAPTION = oldPliticalProcinceCaption
-            };
-            _TBCTAMIN_BRANCHRepository.Create(TBCTAMIN_BRANCH);
-            _TBCTAMIN_BRANCHRepository.SaveChanges();
-            _oracleCommon.InsertInto_DataConverter_MappingId(pensionFundBranch.Code.ToString(), ID, "HRS.TBCTAMIN_BRANCH", "CODE", "Employee.PensionFund", "ID");
+                var pnsionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
+                var pensionFundBranch = pnsionFundBranchQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        Code = x.Code,
+                        Title = x.Title,
+                        Name = x.Title,
+                        PoliticalProvinceCaption = x.CountryDivisionId
+                    })
+                    .FirstOrDefault();
+
+                var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
+
+                var TBCTAMIN_BRANCH = new TBCTAMIN_BRANCH()
+                {
+                    CODE = pensionFundBranch.Code.ToString(),
+                    CAPTION = pensionFundBranch.Title.ToString(),
+                    NAME = pensionFundBranch.Name.ToString(),
+                    POLITICAL_PROVINCE_CAPTION = oldPliticalProcinceCaption
+                };
+                _TBCTAMIN_BRANCHRepository.Create(TBCTAMIN_BRANCH);
+                _TBCTAMIN_BRANCHRepository.SaveChanges();
+                _oracleCommon.InsertInto_DataConverter_MappingId(pensionFundBranch.Code.ToString(), ID, "HRS.TBCTAMIN_BRANCH", "CODE", "Employee.PensionFund", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) ,true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
         public void ConvertToPensionFundBranch_Update_ToOracleTable(string ID)
         {
-            var pensionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
-            var pensionFundBranch = pensionFundBranchQueryable
-                .Where(x=>x.Id.ToString() == ID)
-                .Select(x=> new
-                {
-                    ID= x.Id,
-                    Code = x.Code,
-                    Title = x.Title,
-                    Name = x.Title,
-                    PoliticalProvinceCaption = x.CountryDivisionId
-                })
-                .FirstOrDefault();
-            var oldCode = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "CODE", pensionFundBranch.ID.ToString());
-            var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
-            var TBCTAMIN_BRANCH_Queryable = _TBCTAMIN_BRANCHRepository.GetQueryable();
-            var entity = TBCTAMIN_BRANCH_Queryable
-                .Where(x => x.CODE == oldCode)
-                .ToList()
-                .FirstOrDefault();
+            try
+            {
+                var pensionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
+                var pensionFundBranch = pensionFundBranchQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        Code = x.Code,
+                        Title = x.Title,
+                        Name = x.Title,
+                        PoliticalProvinceCaption = x.CountryDivisionId
+                    })
+                    .FirstOrDefault();
+                var oldCode = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "CODE", pensionFundBranch.ID.ToString());
+                var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
+                var TBCTAMIN_BRANCH_Queryable = _TBCTAMIN_BRANCHRepository.GetQueryable();
+                var entity = TBCTAMIN_BRANCH_Queryable
+                    .Where(x => x.CODE == oldCode)
+                    .ToList()
+                    .FirstOrDefault();
 
-            entity.CAPTION = pensionFundBranch.Title;
-            entity.NAME = pensionFundBranch.Name;
-            entity.POLITICAL_PROVINCE_CAPTION = oldPliticalProcinceCaption;
-            _TBCTAMIN_BRANCHRepository.SaveChanges();
+                entity.CAPTION = pensionFundBranch.Title;
+                entity.NAME = pensionFundBranch.Name;
+                entity.POLITICAL_PROVINCE_CAPTION = oldPliticalProcinceCaption;
+                _TBCTAMIN_BRANCHRepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
         public void ConvertToPensionFundBranch_Delete_ToOracleTable(string ID)
         {
-            var pensionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
-            var pensionFundBranch = pensionFundBranchQueryable
-                .Where(x => x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    Code = x.Code,
-                    Title = x.Title,
-                    Name = x.Title,
-                    PoliticalProvinceCaption = x.CountryDivisionId
-                })
-                .FirstOrDefault();
-            var oldCode = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "CODE", pensionFundBranch.ID.ToString());
-            var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
-            var TBCTAMIN_BRANCH_Queryable = _TBCTAMIN_BRANCHRepository.GetQueryable();
-            var entity = TBCTAMIN_BRANCH_Queryable
-                .Where(x => x.CODE == oldCode)
-                .ToList()
-                .FirstOrDefault();
+            try
+            {
+                var pensionFundBranchQueryable = _SqlPensionFundBranchRepository.GetQueryable();
+                var pensionFundBranch = pensionFundBranchQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        Code = x.Code,
+                        Title = x.Title,
+                        Name = x.Title,
+                        PoliticalProvinceCaption = x.CountryDivisionId
+                    })
+                    .FirstOrDefault();
+                var oldCode = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "CODE", pensionFundBranch.ID.ToString());
+                var oldPliticalProcinceCaption = _oracleCommon.OldColumnValue("HRS.TBCTAMIN_BRANCH", "ID", pensionFundBranch.PoliticalProvinceCaption.ToString());
+                var TBCTAMIN_BRANCH_Queryable = _TBCTAMIN_BRANCHRepository.GetQueryable();
+                var entity = TBCTAMIN_BRANCH_Queryable
+                    .Where(x => x.CODE == oldCode)
+                    .ToList()
+                    .FirstOrDefault();
 
-            _TBCTAMIN_BRANCHRepository.Delete(entity);
-            _TBCTAMIN_BRANCHRepository.SaveChanges();
+                _TBCTAMIN_BRANCHRepository.Delete(entity);
+                _TBCTAMIN_BRANCHRepository.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }        
     }
 }

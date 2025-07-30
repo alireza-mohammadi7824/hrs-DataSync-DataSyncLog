@@ -30,58 +30,70 @@ namespace HRSDataIntegration.Services
         }
         public void ConvertJobPostConvertToOracle(string Id)
         {
-             var sqlPostDetail = _sqlRepositoryPostDetail.GetQueryable()
-                 .Where(x=>x.PostId.ToString() == Id)
-                 .Select(x=> new
-                    {
-                      ID = x.Post.Id,
-                      CODE = x.Code,
-                      NAME=x.Title,
-                      POST_TYPE_CODE = x.PostLevelId ,
-                      ACTIVE_TYPE_CODE= x.Post.IsActive,
-                      STAR_POST_CODE = 2,
-                      SPECIFIC_PARTS_CODE = 2, // قرار شد شنبه 27 اردیبهشت چک شود
-                      CREATION_DATE = _oracleCommon.ToStringDateTime(x.EffectiveDateFrom),
-                      POST_RASTEH_CODE = "",
-                      RASTEHID = x.PostTypeId,
-                      LEVELID = x.PostLevelId
-                   }).FirstOrDefault();
-
-            var OldColumnValueOfMappingId_RASTEH_Id = _oracleCommon.OldColumnValue("HRS.TBCPOST_RASTEH", "CODE", sqlPostDetail.RASTEHID.ToString());
-            var OldColumnValueOfMappingId_LEVEL_Id = _oracleCommon.OldColumnValue("TBCPOST_TYPE", "CODE", sqlPostDetail.LEVELID.ToString());
-
-            var TBPostData = new TBPOST()
+            try
             {
-                ID = sqlPostDetail.ID.ToString(),
-                CODE = sqlPostDetail.CODE,
-                NAME = sqlPostDetail.NAME,
-                POST_TYPE_CODE = int.Parse(OldColumnValueOfMappingId_LEVEL_Id),
-                ACTIVE_TYPE_CODE = sqlPostDetail.ACTIVE_TYPE_CODE ? 1 : 0,
-                STAR_POST_CODE = sqlPostDetail.STAR_POST_CODE,
-                SPECIFIC_PARTS_CODE =sqlPostDetail.SPECIFIC_PARTS_CODE,
-                CREATION_DATE = sqlPostDetail.CREATION_DATE,
-                POST_RASTEH_CODE = int.Parse(OldColumnValueOfMappingId_RASTEH_Id),
-            };
-
-            _postRepository.Create(TBPostData);
-            _postRepository.SaveChanges();
-
-            _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 1008, 8589934592);
-            _oracleCommon.InsertInto_DataConverter_MappingId(sqlPostDetail.ID.ToString(), Id , "HRS.TBPOST","ID" , "OrganChart.Post","ID");
-            var oldPostId = _oracleCommon.OldColumnValue("HRS.TBPOST", "ID", Id);
-            var sqlPostJobQueryable = _sqlRepositoryPostJob.GetQueryable().
-                Where(x => x.PostId.ToString() == Id)
-                .Select(x => new TBPOST_JOB
+                var sqlPostDetail = _sqlRepositoryPostDetail.GetQueryable()
+                .Where(x => x.PostId.ToString() == Id)
+                .Select(x => new
                 {
-                    ID = x.Id.ToString(),
-                    POST_ID = oldPostId,
-                    JOB_ID = _oracleCommon.OldColumnValue("HRS.TBJOB", "ID", x.JobId.ToString())
-                })
-                .ToList();
+                    ID = x.Post.Id,
+                    CODE = x.Code,
+                    NAME = x.Title,
+                    POST_TYPE_CODE = x.PostLevelId,
+                    ACTIVE_TYPE_CODE = x.Post.IsActive,
+                    STAR_POST_CODE = 2,
+                    SPECIFIC_PARTS_CODE = 2, // قرار شد شنبه 27 اردیبهشت چک شود
+                    CREATION_DATE = _oracleCommon.ToStringDateTime(x.EffectiveDateFrom),
+                    POST_RASTEH_CODE = "",
+                    RASTEHID = x.PostTypeId,
+                    LEVELID = x.PostLevelId
+                }).FirstOrDefault();
 
-            _postJobRepository.CreateList(sqlPostJobQueryable);
-            _postJobRepository.SaveChanges();
-          //  _oracleCommon.InsertInto_DataConverter_MappingId(sqlPostDetail.ID.ToString(), Id, "HRS.TBPOST_JOB", "ID", "OrganChart.Post", "ID");            
+                var OldColumnValueOfMappingId_RASTEH_Id = _oracleCommon.OldColumnValue("HRS.TBCPOST_RASTEH", "CODE", sqlPostDetail.RASTEHID.ToString());
+                var OldColumnValueOfMappingId_LEVEL_Id = _oracleCommon.OldColumnValue("TBCPOST_TYPE", "CODE", sqlPostDetail.LEVELID.ToString());
+
+                var TBPostData = new TBPOST()
+                {
+                    ID = sqlPostDetail.ID.ToString(),
+                    CODE = sqlPostDetail.CODE,
+                    NAME = sqlPostDetail.NAME,
+                    POST_TYPE_CODE = int.Parse(OldColumnValueOfMappingId_LEVEL_Id),
+                    ACTIVE_TYPE_CODE = sqlPostDetail.ACTIVE_TYPE_CODE ? 1 : 0,
+                    STAR_POST_CODE = sqlPostDetail.STAR_POST_CODE,
+                    SPECIFIC_PARTS_CODE = sqlPostDetail.SPECIFIC_PARTS_CODE,
+                    CREATION_DATE = sqlPostDetail.CREATION_DATE,
+                    POST_RASTEH_CODE = int.Parse(OldColumnValueOfMappingId_RASTEH_Id),
+                };
+
+                _postRepository.Create(TBPostData);
+                _postRepository.SaveChanges();
+
+                _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 1008, 8589934592);
+                _oracleCommon.InsertInto_DataConverter_MappingId(sqlPostDetail.ID.ToString(), Id, "HRS.TBPOST", "ID", "OrganChart.Post", "ID");
+                var oldPostId = _oracleCommon.OldColumnValue("HRS.TBPOST", "ID", Id);
+                var sqlPostJobQueryable = _sqlRepositoryPostJob.GetQueryable().
+                    Where(x => x.PostId.ToString() == Id)
+                    .Select(x => new TBPOST_JOB
+                    {
+                        ID = x.Id.ToString(),
+                        POST_ID = oldPostId,
+                        JOB_ID = _oracleCommon.OldColumnValue("HRS.TBJOB", "ID", x.JobId.ToString())
+                    })
+                    .ToList();
+
+                _postJobRepository.CreateList(sqlPostJobQueryable);
+                _postJobRepository.SaveChanges();
+                _oracleCommon.InsertInto_DataConverter_MappingId(sqlPostDetail.ID.ToString(), Id, "HRS.TBPOST_JOB", "ID", "OrganChart.Post", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }          
         }
 
         public void UpdatePostJob(string Id) //PostId

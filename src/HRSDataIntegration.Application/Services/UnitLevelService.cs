@@ -23,72 +23,108 @@ namespace HRSDataIntegration.Services
         }
         public void ConvertSqlUnitLevelTable_Insert_ToOracletable(string Id) //unitLevelId
         {
-            var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
-            var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+            try
             {
-                CODE = x.Code,
-                CAPTION = x.Title,
-                NAME = x.Title
-            })
-                .FirstOrDefault();
+                var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
+                var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+                {
+                    CODE = x.Code,
+                    CAPTION = x.Title,
+                    NAME = x.Title
+                })
+                    .FirstOrDefault();
 
-            var TBCUNIT_TYPE = new TBCUNIT_TYPE()
+                var TBCUNIT_TYPE = new TBCUNIT_TYPE()
+                {
+                    CODE = sqlUnitLevel.CODE,
+                    CAPTION = sqlUnitLevel.CAPTION,
+                    NAME = sqlUnitLevel.NAME,
+                };
+                _unitTypeRepository.Create(TBCUNIT_TYPE);
+                _unitTypeRepository.SaveChanges();
+
+                _oracleCommon.InsertInto_DataConverter_MappingId(TBCUNIT_TYPE.CODE.ToString(), Id, "HRS.TBCUNIT_TYPE", "ID", "OrganChart.UnitLevel", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
+            }
+            catch (Exception ex)
             {
-                CODE = sqlUnitLevel.CODE,
-                CAPTION = sqlUnitLevel.CAPTION,
-                NAME = sqlUnitLevel.NAME,
-            };
-            _unitTypeRepository.Create(TBCUNIT_TYPE);
-            _unitTypeRepository.SaveChanges();
-
-            _oracleCommon.InsertInto_DataConverter_MappingId(TBCUNIT_TYPE.CODE.ToString() , Id , "HRS.TBCUNIT_TYPE" , "ID" , "OrganChart.UnitLevel" , "ID");
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }  
         public void ConvertSqlUnitLevelTable_Update_ToOracletable(string Id) //unitLevelId
         {
-            var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
-            var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+            try
             {
-                CODE = x.Code,
-                CAPTION = x.Title,
-                NAME = x.Title
-            })
-              .FirstOrDefault();
-            var oldCode = _oracleCommon.OldColumnValue("HRS.TBCUNIT_TYPE", "CODE", sqlUnitLevel.CODE.ToString());
-            var oracleTBCUNIT_TYPEQueryable = _unitTypeRepository.GetQueryable();
+                var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
+                var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+                {
+                    CODE = x.Code,
+                    CAPTION = x.Title,
+                    NAME = x.Title
+                })
+                  .FirstOrDefault();
+                var oldCode = _oracleCommon.OldColumnValue("HRS.TBCUNIT_TYPE", "CODE", sqlUnitLevel.CODE.ToString());
+                var oracleTBCUNIT_TYPEQueryable = _unitTypeRepository.GetQueryable();
 
 
-            var entity = oracleTBCUNIT_TYPEQueryable
-                        .Where(x=>x.CODE == int.Parse(oldCode))
-                        .ToList()
-                        .FirstOrDefault();
-            entity.CAPTION = sqlUnitLevel.CAPTION;
-            entity.NAME = sqlUnitLevel.NAME;
-            _unitTypeRepository.SaveChanges();
+                var entity = oracleTBCUNIT_TYPEQueryable
+                            .Where(x => x.CODE == int.Parse(oldCode))
+                            .ToList()
+                            .FirstOrDefault();
+                entity.CAPTION = sqlUnitLevel.CAPTION;
+                entity.NAME = sqlUnitLevel.NAME;
+                _unitTypeRepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
 
         }
 
         public void ConvertSqlUnitLevelTable_Delete_ToOracletable(string Id) //unitLevelId
         {
-            var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
-            var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+            try
             {
-                CODE = x.Code,
-                CAPTION = x.Title,
-                NAME = x.Title
-            })
-              .FirstOrDefault();
+                var sqlUnitLevelQueryable = _sqlRepositoryUnitLevel.GetQueryable();
+                var sqlUnitLevel = sqlUnitLevelQueryable.Where(x => x.Id.ToString() == Id).Select(x => new
+                {
+                    CODE = x.Code,
+                    CAPTION = x.Title,
+                    NAME = x.Title
+                })
+                  .FirstOrDefault();
 
-            var oldCode = _oracleCommon.OldColumnValue("HRS.TBCUNIT_TYPE", "CODE", sqlUnitLevel.CODE.ToString());
+                var oldCode = _oracleCommon.OldColumnValue("HRS.TBCUNIT_TYPE", "CODE", sqlUnitLevel.CODE.ToString());
 
-            var oracleTBCUNIT_TYPEQueryable = _unitTypeRepository.GetQueryable();
-            var entity = oracleTBCUNIT_TYPEQueryable
-                        .Where(x => x.CODE == int.Parse(oldCode))
-                        .ToList()
-                        .FirstOrDefault();
-             var oracleCode = _oracleCommon.Get_Old_ColumnValue(Id, "HRS.TBCUNIT_TYPE", "ID", "OrganChart.UnitLevel", "ID");
-            entity.CODE = int.Parse(oracleCode);
-            _unitTypeRepository.Delete(entity);
-            _unitTypeRepository.SaveChanges();
+                var oracleTBCUNIT_TYPEQueryable = _unitTypeRepository.GetQueryable();
+                var entity = oracleTBCUNIT_TYPEQueryable
+                            .Where(x => x.CODE == int.Parse(oldCode))
+                            .ToList()
+                            .FirstOrDefault();
+                var oracleCode = _oracleCommon.Get_Old_ColumnValue(Id, "HRS.TBCUNIT_TYPE", "ID", "OrganChart.UnitLevel", "ID");
+                entity.CODE = int.Parse(oracleCode);
+                _unitTypeRepository.Delete(entity);
+                _unitTypeRepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) ,true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }
     }
 }

@@ -31,7 +31,9 @@ namespace HRSDataIntegration.Services
         }
         public void ConvertToStudyField_Insert_ToOracleTable(string ID) 
         {
-            #region insert into studyField
+            try
+            {
+                #region insert into studyField
                 var sqlStudyFieldQeuryable = _sqlStudyField.GetQueryable();
                 var sqlStudyField = sqlStudyFieldQeuryable
                     .Where(x => x.Id.ToString() == ID)
@@ -56,58 +58,70 @@ namespace HRSDataIntegration.Services
 
                 _oracleCommon.InsertInto_DataConverter_MappingId(sqlStudyField.ID.ToString(), ID, "HRS.TBEDUCATION_STUDY", "ID", "Employee.StudyField", "ID");
                 _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", ID, 1220, 8589934592);
-            #endregion insert into studyField
-            #region insert into studyBranch
-            //var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
-            //var sqlStudyBranch = sqlStudyBranchQueryable
-            //    .Where(x => x.StudyFieldId.ToString() == ID)
-            //    .Select(x => new
-            //    {
-            //        ID = x.Id,
-            //        CODE = x.Code,
-            //        TITLE = x.Title,
-            //        StudyFieldId = x.StudyFieldId
-            //    }).FirstOrDefault();
+                #endregion insert into studyField
+                #region insert into studyBranch
+                //var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
+                //var sqlStudyBranch = sqlStudyBranchQueryable
+                //    .Where(x => x.StudyFieldId.ToString() == ID)
+                //    .Select(x => new
+                //    {
+                //        ID = x.Id,
+                //        CODE = x.Code,
+                //        TITLE = x.Title,
+                //        StudyFieldId = x.StudyFieldId
+                //    }).FirstOrDefault();
 
-            //var oldStudyFieldId = _oracleCommon.OldColumnValue("HRS.TBEDUCATION_STUDY", "ID", sqlStudyBranch.StudyFieldId.ToString());
+                //var oldStudyFieldId = _oracleCommon.OldColumnValue("HRS.TBEDUCATION_STUDY", "ID", sqlStudyBranch.StudyFieldId.ToString());
 
-            //var TBEDUCATION_BRANCH = new TBEDUCATION_BRANCH()
-            //{
-            //    ID = sqlStudyBranch.ID.ToString(),
-            //    CODE = sqlStudyBranch.CODE,
-            //    NAME = sqlStudyBranch.TITLE,
-            //    EDUCATION_STUDY_ID = oldStudyFieldId,
-            //};
+                //var TBEDUCATION_BRANCH = new TBEDUCATION_BRANCH()
+                //{
+                //    ID = sqlStudyBranch.ID.ToString(),
+                //    CODE = sqlStudyBranch.CODE,
+                //    NAME = sqlStudyBranch.TITLE,
+                //    EDUCATION_STUDY_ID = oldStudyFieldId,
+                //};
 
-            //_TBEDUCATION_BRANCH.Create(TBEDUCATION_BRANCH);
-            //_TBEDUCATION_BRANCH.SaveChanges();
+                //_TBEDUCATION_BRANCH.Create(TBEDUCATION_BRANCH);
+                //_TBEDUCATION_BRANCH.SaveChanges();
 
-            //_oracleCommon.InsertInto_DataConverter_MappingId(sqlStudyBranch.ID.ToString(), ID, "TBEDUCATION_BRANCH", "ID", "Employee.StudyBranch", "ID");
-            //_oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", ID, 1220, 8589934592);
+                //_oracleCommon.InsertInto_DataConverter_MappingId(sqlStudyBranch.ID.ToString(), ID, "TBEDUCATION_BRANCH", "ID", "Employee.StudyBranch", "ID");
+                //_oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", ID, 1220, 8589934592);
 
-            var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
-            var sqlStudyBranch = sqlStudyBranchQueryable
-                .Where(x => x.StudyFieldId.ToString() == ID)
-                .Select(x => new TBEDUCATION_BRANCH
+                var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
+                var sqlStudyBranch = sqlStudyBranchQueryable
+                    .Where(x => x.StudyFieldId.ToString() == ID)
+                    .Select(x => new TBEDUCATION_BRANCH
+                    {
+                        ID = x.Id.ToString(),
+                        CODE = x.Code,
+                        NAME = x.Title,
+                        EDUCATION_STUDY_ID = _oracleCommon.OldColumnValue("HRS.TBEDUCATION_STUDY", "ID", x.StudyFieldId.ToString())
+                    }).ToList();
+
+                _TBEDUCATION_BRANCH.CreateList(sqlStudyBranch);
+                _TBEDUCATION_BRANCH.SaveChanges();
+                foreach (var item in sqlStudyBranch)
                 {
-                    ID = x.Id.ToString(),
-                    CODE = x.Code,
-                    NAME = x.Title,
-                    EDUCATION_STUDY_ID = _oracleCommon.OldColumnValue("HRS.TBEDUCATION_STUDY", "ID", x.StudyFieldId.ToString())
-                }).ToList();
-
-            _TBEDUCATION_BRANCH.CreateList(sqlStudyBranch);
-            _TBEDUCATION_BRANCH.SaveChanges();
-            foreach (var item in sqlStudyBranch)
-            {
-              _oracleCommon.InsertInto_DataConverter_MappingId(item.ID.ToString(), ID , "TBEDUCATION_BRANCH", "ID", "Employee.StudyBranch", "ID");
+                    _oracleCommon.InsertInto_DataConverter_MappingId(item.ID.ToString(), ID, "TBEDUCATION_BRANCH", "ID", "Employee.StudyBranch", "ID");
+                }
+                _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", ID, 1220, 8589934592);
+                #endregion insert into studyBranch
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
             }
-            _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", ID, 1220, 8589934592);
-            #endregion insert into studyBranch
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }
         public void ConvertToStudyField_Update_ToOracleTable(string ID)
         {
-            #region update field
+            try
+            {
+                #region update field
                 var sqlStudyFieldQeuryable = _sqlStudyField.GetQueryable();
                 var sqlStudyField = sqlStudyFieldQeuryable
                     .Where(x => x.Id.ToString() == ID)
@@ -123,16 +137,16 @@ namespace HRSDataIntegration.Services
 
                 var TBEDUCATION_STUDY_QUERYABLE = _TBEDUCATION_STUDY.GetQueryable();
                 var entity = TBEDUCATION_STUDY_QUERYABLE
-                    .Where(x=> x.ID.ToString() == oldId)
+                    .Where(x => x.ID.ToString() == oldId)
                     .ToList()
                     .FirstOrDefault();
 
-                entity.CODE  = sqlStudyField.CODE;
+                entity.CODE = sqlStudyField.CODE;
                 entity.NAME = sqlStudyField.TITLE;
                 entity.CORRESPOND_CODE = sqlStudyField.IsRelatedToBank;
                 _TBEDUCATION_STUDY.SaveChanges();
-            #endregion update field
-            #region update branch
+                #endregion update field
+                #region update branch
                 var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
                 var sqlStudyBranch = sqlStudyBranchQueryable
                     .Where(x => x.StudyFieldId.ToString() == ID)
@@ -147,73 +161,85 @@ namespace HRSDataIntegration.Services
 
                 var MappingIdQueryable = _sqlMappingId.GetQueryable();
                 var mapping = MappingIdQueryable
-                .Select(x=> new TBEDUCATION_BRANCH
-                { 
-                    ID = x.Id.ToString() ,
+                .Select(x => new TBEDUCATION_BRANCH
+                {
+                    ID = x.Id.ToString(),
                     CODE = 0,
-                    NAME = x.NewColumnValue ,
+                    NAME = x.NewColumnValue,
                     EDUCATION_STUDY_ID = "0"
                 })
                 .Where(x => x.NAME == ID)
                 .ToList();
 
-            var existInmapping = mapping.Except(sqlStudyBranch, new Comparer()).ToList();
-            if (existInmapping.Count > 0)
-            {
-                _TBEDUCATION_BRANCH.DeleteList(existInmapping);
+                var existInmapping = mapping.Except(sqlStudyBranch, new Comparer()).ToList();
+                if (existInmapping.Count > 0)
+                {
+                    _TBEDUCATION_BRANCH.DeleteList(existInmapping);
+                    _TBEDUCATION_BRANCH.SaveChanges();
+                }
+
+                var notExistInMapping = mapping.Except(mapping, new Comparer()).ToList();
+                if (notExistInMapping.Count > 0)
+                {
+                    _TBEDUCATION_BRANCH.CreateList(notExistInMapping);
+                    _TBEDUCATION_BRANCH.SaveChanges();
+                }
+
+                //var oldStudyFieldId = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", sqlStudyBranch..ToString());
+                //var TBEDUCATION_BRANCH_QUERYABLE = _TBEDUCATION_BRANCH.GetQueryable();
+                //var entityBranch = TBEDUCATION_BRANCH_QUERYABLE
+                //    .Where(x => x.ID.ToString() == oldStudyFieldId)
+                //    .ToList()
+                //    .FirstOrDefault();
+
+                //entityBranch.CODE = sqlStudyBranch.CODE;
+                //entityBranch.NAME = sqlStudyBranch.TITLE;
+                //entityBranch.EDUCATION_STUDY_ID = sqlStudyBranch.STUDY_FIELD_ID.ToString();
+
                 _TBEDUCATION_BRANCH.SaveChanges();
+                #endregion update branch
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), true);
             }
-
-            var notExistInMapping = mapping.Except(mapping, new Comparer()).ToList();
-            if (notExistInMapping.Count > 0)
+            catch (Exception ex)
             {
-                _TBEDUCATION_BRANCH.CreateList(notExistInMapping);
-                _TBEDUCATION_BRANCH.SaveChanges();
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
             }
-
-            //var oldStudyFieldId = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", sqlStudyBranch..ToString());
-            //var TBEDUCATION_BRANCH_QUERYABLE = _TBEDUCATION_BRANCH.GetQueryable();
-            //var entityBranch = TBEDUCATION_BRANCH_QUERYABLE
-            //    .Where(x => x.ID.ToString() == oldStudyFieldId)
-            //    .ToList()
-            //    .FirstOrDefault();
-
-            //entityBranch.CODE = sqlStudyBranch.CODE;
-            //entityBranch.NAME = sqlStudyBranch.TITLE;
-            //entityBranch.EDUCATION_STUDY_ID = sqlStudyBranch.STUDY_FIELD_ID.ToString();
-
-            _TBEDUCATION_BRANCH.SaveChanges();
-            #endregion update branch
 
         }
         public void ConvertToStudyField_Delete_ToOracleTable(string ID)
         {
-            #region Delete Branch
-            var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
-            var sqlStudyBranch = sqlStudyBranchQueryable
-                .Where(x => x.StudyFieldId.ToString() == ID)
-                .Select(x => new TBEDUCATION_BRANCH
-                {
-                    ID = x.Id.ToString(),
-                    CODE = x.Code,
-                    NAME = x.Title,
-                    EDUCATION_STUDY_ID = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", x.StudyFieldId.ToString()),
-                })
-                .ToList();
-            _TBEDUCATION_BRANCH.DeleteList(sqlStudyBranch);
-            _TBEDUCATION_BRANCH.SaveChanges();
-            //   var oldStudyFieldId = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", sqlStudyBranch.STYDY_FIELD_ID.ToString());
-            //var TBEDUCATION_BRANCH_QUERYABLE = _TBEDUCATION_BRANCH.GetQueryable();
-            //var entityBrach = TBEDUCATION_BRANCH_QUERYABLE
-            //    .Where(x => x.ID.ToString() == oldStudyFieldId)
-            //    .ToList()
-            //    .FirstOrDefault();
+            try
+            {
+                #region Delete Branch
+                var sqlStudyBranchQueryable = _sqlStudyBranch.GetQueryable();
+                var sqlStudyBranch = sqlStudyBranchQueryable
+                    .Where(x => x.StudyFieldId.ToString() == ID)
+                    .Select(x => new TBEDUCATION_BRANCH
+                    {
+                        ID = x.Id.ToString(),
+                        CODE = x.Code,
+                        NAME = x.Title,
+                        EDUCATION_STUDY_ID = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", x.StudyFieldId.ToString()),
+                    })
+                    .ToList();
+                _TBEDUCATION_BRANCH.DeleteList(sqlStudyBranch);
+                _TBEDUCATION_BRANCH.SaveChanges();
+                //   var oldStudyFieldId = _oracleCommon.OldColumnValue("TBEDUCATION_BRANCH", "ID", sqlStudyBranch.STYDY_FIELD_ID.ToString());
+                //var TBEDUCATION_BRANCH_QUERYABLE = _TBEDUCATION_BRANCH.GetQueryable();
+                //var entityBrach = TBEDUCATION_BRANCH_QUERYABLE
+                //    .Where(x => x.ID.ToString() == oldStudyFieldId)
+                //    .ToList()
+                //    .FirstOrDefault();
 
-            //_TBEDUCATION_BRANCH.Delete(entityBrach);
-            //_TBEDUCATION_BRANCH.SaveChanges();
-            #endregion Delete Branch
-            #region Delete field
-            var sqlStudyFieldQeuryable = _sqlStudyField.GetQueryable();
+                //_TBEDUCATION_BRANCH.Delete(entityBrach);
+                //_TBEDUCATION_BRANCH.SaveChanges();
+                #endregion Delete Branch
+                #region Delete field
+                var sqlStudyFieldQeuryable = _sqlStudyField.GetQueryable();
                 var sqlStudyField = sqlStudyFieldQeuryable
                     .Where(x => x.Id.ToString() == ID)
                     .Select(x => new
@@ -234,7 +260,17 @@ namespace HRSDataIntegration.Services
 
                 _TBEDUCATION_STUDY.Delete(entity);
                 _TBEDUCATION_STUDY.SaveChanges();
-            #endregion Delete Field
+                #endregion Delete Field
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
            
         }
     }

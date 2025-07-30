@@ -17,7 +17,7 @@ namespace HRSDataIntegration.Services
 
         public async Task SendJobRabbitMQMessage()
         {
-            await _busService.Publish<MessageDTO>(new MessageDTO { Id = "7A429CEE-F46E-EFD8-7508-3A16C10AE95C", Type = "Insert_Job_Queue" });
+            await _busService.Publish<MessageDTO>(new MessageDTO { Id = "F690EF83-ABD7-D229-9843-3A19FEAD6E1C", Type = "Insert_Job_Queue" });
         }
 
         public async Task SendPostRabbitMQMessage()

@@ -24,75 +24,111 @@ namespace HRSDataIntegration.Services
         }
         public void ConvertToUniversityType_Insert_ToOracleTable(string ID)
         {
-            var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
-            var universityType = universityTypeQueryable
-                .Where(x=>x.Id.ToString() == ID)
-                .Select(x=>new
-                {
-                    ID =x.Id,
-                    CODE = x.Code,
-                    TITLE = x.Title                    
-                })
-                .FirstOrDefault();
-            // var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
-            var TBUNIVERSITY_TYPE = new TBUNIVERSITY_TYPE()
+            try
             {
-                ID = universityType.ID.ToString(),
-                CODE = universityType.CODE,
-                NAME = universityType.TITLE,
-                //STATE_CODE=
-            };
-            _TBUNIVERSITY_TYPERepository.Create(TBUNIVERSITY_TYPE);
-            _TBUNIVERSITY_TYPERepository.SaveChanges();
+                var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
+                var universityType = universityTypeQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        TITLE = x.Title
+                    })
+                    .FirstOrDefault();
+                // var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
+                var TBUNIVERSITY_TYPE = new TBUNIVERSITY_TYPE()
+                {
+                    ID = universityType.ID.ToString(),
+                    CODE = universityType.CODE,
+                    NAME = universityType.TITLE,
+                    //STATE_CODE=
+                };
+                _TBUNIVERSITY_TYPERepository.Create(TBUNIVERSITY_TYPE);
+                _TBUNIVERSITY_TYPERepository.SaveChanges();
 
-            _oracleCommon.InsertInto_DataConverter_MappingId(universityType.ID.ToString(), ID, "HRS.TBUNIVERSITY_TYPE", "ID", "Employee.UniversityType", "ID");
+                _oracleCommon.InsertInto_DataConverter_MappingId(universityType.ID.ToString(), ID, "HRS.TBUNIVERSITY_TYPE", "ID", "Employee.UniversityType", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
 
         public void ConvertToUniversityType_Update_ToOracleTable(string ID)
         {
-            var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
-            var universityType = universityTypeQueryable
-                .Where(x => x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    TITLE = x.Title
-                })
-                .FirstOrDefault();
-             var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
-             var TBUNIVERSITY_TYPEQUERYABLE = _TBUNIVERSITY_TYPERepository.GetQueryable();
-             var entity = TBUNIVERSITY_TYPEQUERYABLE
-                .Where(x => x.ID.ToString() == universityType.ID.ToString())
-               // .Where(x => x.ID.ToString() == oldId)
-                .ToList()
-                .FirstOrDefault();
-             entity.CODE = universityType.CODE;
-             entity.NAME = universityType.TITLE;
-             _TBUNIVERSITY_TYPERepository.SaveChanges();
+            try
+            {
+                var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
+                var universityType = universityTypeQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        TITLE = x.Title
+                    })
+                    .FirstOrDefault();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
+                var TBUNIVERSITY_TYPEQUERYABLE = _TBUNIVERSITY_TYPERepository.GetQueryable();
+                var entity = TBUNIVERSITY_TYPEQUERYABLE
+                   .Where(x => x.ID.ToString() == universityType.ID.ToString())
+                   // .Where(x => x.ID.ToString() == oldId)
+                   .ToList()
+                   .FirstOrDefault();
+                entity.CODE = universityType.CODE;
+                entity.NAME = universityType.TITLE;
+                _TBUNIVERSITY_TYPERepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
         public void ConvertToUniversityType_Delete_ToOracleTable(string ID)
         {
-            var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
-            var universityType = universityTypeQueryable
-                .Where(x => x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    TITLE = x.Title
-                })
-                .FirstOrDefault();
-            var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
-            var TBUNIVERSITY_TYPEQUERYABLE = _TBUNIVERSITY_TYPERepository.GetQueryable();
-            var entity = TBUNIVERSITY_TYPEQUERYABLE
-               .Where(x => x.ID.ToString() == universityType.ID.ToString())
-              // .Where(x => x.ID.ToString() == oldId)
-               .ToList()
-               .FirstOrDefault();
+            try
+            {
+                var universityTypeQueryable = _sqlRepositoryUniversityType.GetQueryable();
+                var universityType = universityTypeQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        TITLE = x.Title
+                    })
+                    .FirstOrDefault();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBUNIVERSITY_TYPE", "ID", universityType.ID.ToString());
+                var TBUNIVERSITY_TYPEQUERYABLE = _TBUNIVERSITY_TYPERepository.GetQueryable();
+                var entity = TBUNIVERSITY_TYPEQUERYABLE
+                   .Where(x => x.ID.ToString() == universityType.ID.ToString())
+                   // .Where(x => x.ID.ToString() == oldId)
+                   .ToList()
+                   .FirstOrDefault();
 
-            _TBUNIVERSITY_TYPERepository.Delete(entity);
-            _TBUNIVERSITY_TYPERepository.SaveChanges();
+                _TBUNIVERSITY_TYPERepository.Delete(entity);
+                _TBUNIVERSITY_TYPERepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true); 
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                                ? ex.Message.Substring(0, 500)
+                                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }        
     }
 }

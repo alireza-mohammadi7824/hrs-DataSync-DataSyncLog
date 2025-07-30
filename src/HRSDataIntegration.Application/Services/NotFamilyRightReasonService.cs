@@ -26,77 +26,113 @@ namespace HRSDataIntegration.Services
 
         public void ConvertNotFamilyRightReasonInsertToOracleTable(string Id)
         {
-            var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
-            var notFamilyRightReason = notFamilyRightReasonQueryable
-                .Where(x => x.Id.ToString() == Id)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    TITLE = x.Title
-                })
-                .FirstOrDefault();
-            // var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON","ID", notFamilyRightReason.ID.ToString());
-            var TBNON_LIABILITY_REASON = new TBNON_LIABILITY_REASON()
+            try
             {
-                ID = notFamilyRightReason.ID.ToString(),
-                CODE = notFamilyRightReason.CODE,
-                NAME = notFamilyRightReason.TITLE,
-            };
+                var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
+                var notFamilyRightReason = notFamilyRightReasonQueryable
+                    .Where(x => x.Id.ToString() == Id)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        TITLE = x.Title
+                    })
+                    .FirstOrDefault();
+                // var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON","ID", notFamilyRightReason.ID.ToString());
+                var TBNON_LIABILITY_REASON = new TBNON_LIABILITY_REASON()
+                {
+                    ID = notFamilyRightReason.ID.ToString(),
+                    CODE = notFamilyRightReason.CODE,
+                    NAME = notFamilyRightReason.TITLE,
+                };
 
-            _oracleRepositoryTBNON_LIABILITY_REASON.Create(TBNON_LIABILITY_REASON);
-            _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
+                _oracleRepositoryTBNON_LIABILITY_REASON.Create(TBNON_LIABILITY_REASON);
+                _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
 
-            _oracleCommon.InsertInto_DataConverter_MappingId(notFamilyRightReason.ID.ToString(), Id, "HRS.TBNON_LIABILITY_REASON", "ID", "Employee.NotFamilyRightReason", "ID");
+                _oracleCommon.InsertInto_DataConverter_MappingId(notFamilyRightReason.ID.ToString(), Id, "HRS.TBNON_LIABILITY_REASON", "ID", "Employee.NotFamilyRightReason", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                ? ex.Message.Substring(0, 500)
+                : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }
 
         public void ConvertNotFamilyRightReasonUpdateToOracleTable(string Id)
         {
-            var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
-            var notFamilyRightReason = notFamilyRightReasonQueryable
-                .Where(x => x.Id.ToString() == Id)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    NAME = x.Title
-                })
-                .FirstOrDefault();
-            var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON", "ID", notFamilyRightReason.ID.ToString());
-            var TBNON_LIABILITY_REASON = _oracleRepositoryTBNON_LIABILITY_REASON.GetQueryable();
+            try
+            {
+                var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
+                var notFamilyRightReason = notFamilyRightReasonQueryable
+                    .Where(x => x.Id.ToString() == Id)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        NAME = x.Title
+                    })
+                    .FirstOrDefault();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON", "ID", notFamilyRightReason.ID.ToString());
+                var TBNON_LIABILITY_REASON = _oracleRepositoryTBNON_LIABILITY_REASON.GetQueryable();
 
-            var entity = TBNON_LIABILITY_REASON
-                .Where(x => x.ID.ToString() == notFamilyRightReason.ID.ToString()) //  اینجا  oldId  باید باشد؟
-                .ToList()
-                .FirstOrDefault();
-            entity.CODE = notFamilyRightReason.CODE;
-            entity.NAME = notFamilyRightReason.NAME;
-            _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
+                var entity = TBNON_LIABILITY_REASON
+                    .Where(x => x.ID.ToString() == notFamilyRightReason.ID.ToString()) //  اینجا  oldId  باید باشد؟
+                    .ToList()
+                    .FirstOrDefault();
+                entity.CODE = notFamilyRightReason.CODE;
+                entity.NAME = notFamilyRightReason.NAME;
+                _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                              ? ex.Message.Substring(0, 500)
+                              : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }
 
         public void ConvertNotFamilyRightReasonDeleteToOracleTable(string Id)
         {
-            var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
-            var notFamilyRightReason = notFamilyRightReasonQueryable
-                .Where(x => x.Id.ToString() == Id)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    NAME = x.Title
-                })
-                .FirstOrDefault();
+            try
+            {
+                var notFamilyRightReasonQueryable = _sqlRepositoryNotFamilyRightReason.GetQueryable();
+                var notFamilyRightReason = notFamilyRightReasonQueryable
+                    .Where(x => x.Id.ToString() == Id)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        NAME = x.Title
+                    })
+                    .FirstOrDefault();
 
-            var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON", "ID", notFamilyRightReason.ID.ToString());
-            var TBNON_LIABILITY_REASON = _oracleRepositoryTBNON_LIABILITY_REASON.GetQueryable();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_LIABILITY_REASON", "ID", notFamilyRightReason.ID.ToString());
+                var TBNON_LIABILITY_REASON = _oracleRepositoryTBNON_LIABILITY_REASON.GetQueryable();
 
-            var entity = TBNON_LIABILITY_REASON
-                .Where(x => x.ID.ToString() == notFamilyRightReason.ID.ToString())  //  اینجا  oldId  باید باشد؟
-                .ToList()
-                .FirstOrDefault();
+                var entity = TBNON_LIABILITY_REASON
+                    .Where(x => x.ID.ToString() == notFamilyRightReason.ID.ToString())  //  اینجا  oldId  باید باشد؟
+                    .ToList()
+                    .FirstOrDefault();
 
-            _oracleRepositoryTBNON_LIABILITY_REASON.Delete(entity);
-            _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
+                _oracleRepositoryTBNON_LIABILITY_REASON.Delete(entity);
+                _oracleRepositoryTBNON_LIABILITY_REASON.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true); 
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                throw ex;
+            }
         }
     }
 }

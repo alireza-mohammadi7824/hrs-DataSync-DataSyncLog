@@ -23,75 +23,110 @@ namespace HRSDataIntegration.Services
         }
         public void ConvertToNotDependentReasonService_Insert_ToOracleTable(string ID)
         {
-            var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
-            var notDependentReason = notDependentReasonQueryable
-                .Where(x=>x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    NAME = x.Title
-                })
-                .FirstOrDefault();
-
-            var TBNON_DEPENDENT_REASON = new TBNON_DEPENDENT_REASON()
+            try
             {
-                ID = notDependentReason.ID.ToString(),
-                CODE = notDependentReason.CODE,
-                NAME = notDependentReason.NAME,
-            };
-            _TBNON_DEPENDENT_REASONRepository.Create(TBNON_DEPENDENT_REASON);
-            _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+                var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
+                var notDependentReason = notDependentReasonQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        NAME = x.Title
+                    })
+                    .FirstOrDefault();
 
-            _oracleCommon.InsertInto_DataConverter_MappingId(notDependentReason.ID.ToString(), ID, "HRS.TBNON_DEPENDENT_REASON", "ID", "Employee.NotDependentReason", "ID");
+                var TBNON_DEPENDENT_REASON = new TBNON_DEPENDENT_REASON()
+                {
+                    ID = notDependentReason.ID.ToString(),
+                    CODE = notDependentReason.CODE,
+                    NAME = notDependentReason.NAME,
+                };
+                _TBNON_DEPENDENT_REASONRepository.Create(TBNON_DEPENDENT_REASON);
+                _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+
+                _oracleCommon.InsertInto_DataConverter_MappingId(notDependentReason.ID.ToString(), ID, "HRS.TBNON_DEPENDENT_REASON", "ID", "Employee.NotDependentReason", "ID");
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
 
         public void ConvertToNotDependentReasonService_Update_ToOracleTable(string ID)
         {
-            var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
-            var notDependentReason = notDependentReasonQueryable
-                .Where(x => x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    NAME = x.Title
-                })
-                .FirstOrDefault();
+            try
+            {
+                var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
+                var notDependentReason = notDependentReasonQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        NAME = x.Title
+                    })
+                    .FirstOrDefault();
 
-            var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_DEPENDENT_REASON", "ID", notDependentReason.ID.ToString());
-            var TBNON_DEPENDENT_REASON = _TBNON_DEPENDENT_REASONRepository.GetQueryable();
-            var entity = TBNON_DEPENDENT_REASON
-                .Where(x=>x.ID.ToString() == oldId)
-                .ToList()
-                .FirstOrDefault();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_DEPENDENT_REASON", "ID", notDependentReason.ID.ToString());
+                var TBNON_DEPENDENT_REASON = _TBNON_DEPENDENT_REASONRepository.GetQueryable();
+                var entity = TBNON_DEPENDENT_REASON
+                    .Where(x => x.ID.ToString() == oldId)
+                    .ToList()
+                    .FirstOrDefault();
 
-            entity.CODE = notDependentReason.CODE;
-            entity.NAME = notDependentReason.NAME;
-            _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+                entity.CODE = notDependentReason.CODE;
+                entity.NAME = notDependentReason.NAME;
+                _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID) , true);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }
         public void ConvertToNotDependentReasonService_Delete_ToOracleTable(string ID)
         {
-            var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
-            var notDependentReason = notDependentReasonQueryable
-                .Where(x => x.Id.ToString() == ID)
-                .Select(x => new
-                {
-                    ID = x.Id,
-                    CODE = x.Code,
-                    NAME = x.Title
-                })
-                .FirstOrDefault();
+            try
+            {
+                var notDependentReasonQueryable = _sqlRepositoryNotDependentReason.GetQueryable();
+                var notDependentReason = notDependentReasonQueryable
+                    .Where(x => x.Id.ToString() == ID)
+                    .Select(x => new
+                    {
+                        ID = x.Id,
+                        CODE = x.Code,
+                        NAME = x.Title
+                    })
+                    .FirstOrDefault();
 
-            var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_DEPENDENT_REASON", "ID", notDependentReason.ID.ToString());
-            var TBNON_DEPENDENT_REASON = _TBNON_DEPENDENT_REASONRepository.GetQueryable();
-            var entity = TBNON_DEPENDENT_REASON
-                .Where(x => x.ID.ToString() == oldId)
-                .ToList()
-                .FirstOrDefault();
+                var oldId = _oracleCommon.OldColumnValue("HRS.TBNON_DEPENDENT_REASON", "ID", notDependentReason.ID.ToString());
+                var TBNON_DEPENDENT_REASON = _TBNON_DEPENDENT_REASONRepository.GetQueryable();
+                var entity = TBNON_DEPENDENT_REASON
+                    .Where(x => x.ID.ToString() == oldId)
+                    .ToList()
+                    .FirstOrDefault();
 
-            _TBNON_DEPENDENT_REASONRepository.Delete(entity);
-            _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+                _TBNON_DEPENDENT_REASONRepository.Delete(entity);
+                _TBNON_DEPENDENT_REASONRepository.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message?.Length > 500
+                               ? ex.Message.Substring(0, 500)
+                               : ex.Message;
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
+                throw ex;
+            }
         }        
     }
 }
