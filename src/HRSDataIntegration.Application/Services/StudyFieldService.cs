@@ -113,7 +113,7 @@ namespace HRSDataIntegration.Services
                 string message = ex.Message?.Length > 500
                                ? ex.Message.Substring(0, 500)
                                : ex.Message;
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
                 throw ex;
             }
         }
@@ -205,7 +205,7 @@ namespace HRSDataIntegration.Services
                 string message = ex.Message?.Length > 500
                                 ? ex.Message.Substring(0, 500)
                                 : ex.Message;
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
                 throw ex;
             }
 
@@ -268,7 +268,7 @@ namespace HRSDataIntegration.Services
                 string message = ex.Message?.Length > 500
                                 ? ex.Message.Substring(0, 500)
                                 : ex.Message;
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(ID), false, message);
                 throw ex;
             }
            
