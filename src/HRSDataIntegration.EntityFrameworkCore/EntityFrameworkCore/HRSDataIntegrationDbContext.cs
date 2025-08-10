@@ -217,6 +217,9 @@ public class HRSDataIntegrationDbContext :
         builder.Entity<MappingId>()
          .ToTable("MappingId", schema: "DataConvert");
 
+        builder.Entity<DataSyncLog>()
+         .ToTable("DataSyncLog", schema: "DataConvert");
+
         builder.Entity<CountryDivisionDetail>()
          .ToTable("CountryDivisionDetail", schema: "OrganChart");
         builder.Entity<CountryDivision>()
