@@ -102,7 +102,27 @@ public class HRSDataIntegrationWebModule : AbpModule
 
             PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
             {
-                serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "4421c52f-80bb-49b9-9818-a887dfab75c3");
+                //serverBuilder.AddProductionEncryptionAndSigningCertificate("openiddict.pfx", "4421c52f-80bb-49b9-9818-a887dfab75c3");
+
+                var certConfig = configuration.GetSection("OpenIddict:SigningCertificate");
+                var certPath = certConfig["Path"];
+                var certPassword = certConfig["Password"];
+
+                if (!File.Exists(certPath))
+                {
+                    throw new FileNotFoundException($"Signing Certificate couldn't found: {certPath}");
+                }
+
+                var cert = new X509Certificate2(
+                                   certPath,
+                                   certPassword,
+                                   X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet
+                               );
+
+                serverBuilder.AddEncryptionCertificate(cert);
+                serverBuilder.AddSigningCertificate(cert);
+
+
                 serverBuilder.SetIssuer(new Uri(configuration["AuthServer:Authority"]!));
             });
         }

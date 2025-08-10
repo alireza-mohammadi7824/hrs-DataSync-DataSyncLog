@@ -28,6 +28,7 @@ namespace HRSDataIntegration.RecivedConsumer
 
                     rmq.Bind(nameof(MessageDTO), x =>
                     {
+                        x.RoutingKey = "UnitLevelRoutingKey";
                         x.ExchangeType = ExchangeType.Direct;
                     });
                 }

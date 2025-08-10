@@ -25,9 +25,9 @@ namespace HRSDataIntegration.RecivedConsumer
                 endpointConfigurator.ConfigureConsumeTopology = false;
                 if (endpointConfigurator is IRabbitMqReceiveEndpointConfigurator rmq)
                 {
-
                     rmq.Bind(nameof(MessageDTO), x =>
                     {
+                        x.RoutingKey = "JobRoutingKey";
                         x.ExchangeType = ExchangeType.Direct;
                     });
                 }
