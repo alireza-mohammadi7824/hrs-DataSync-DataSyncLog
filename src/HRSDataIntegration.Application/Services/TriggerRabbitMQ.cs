@@ -17,7 +17,7 @@ namespace HRSDataIntegration.Services
 
         public async Task SendJobRabbitMQMessage()
         {
-            await _busService.Publish<MessageDTO>(new MessageDTO { Id = "F690EF83-ABD7-D229-9843-3A19FEAD6E1C", Type = "Insert_Job_Queue" });
+          //  await _busService.Publish<MessageDTO>(new MessageDTO { Id = "F690EF83-ABD7-D229-9843-3A19FEAD6E1C", Type = "Insert_Job_Queue" });
         }
 
         public async Task SendPostRabbitMQMessage()
@@ -237,6 +237,19 @@ namespace HRSDataIntegration.Services
         public async Task SendInsertPersonEducationRabbitMQMessage()
         {
            //   await _busService.Publish<MessageDTO>(new MessageDTO { Id = "C6C1B70D-38D6-E052-405C-3A1A145E86D8", Type = "Insert_PersonEducation_Queue" });
+        }
+
+        public async Task SendInsertEmployeeDependentStatusRabbitMQMessage()
+        {
+             // await _busService.Publish<MessageDTO>(new MessageDTO { Id = "8745F0B1-AE0D-907B-DC53-3A1AD2CA7CF1", Type = "Insert_EmployeeDependentStatus_Queue" });
+        }
+        public async Task SendUpdateEmployeeDependentStatusRabbitMQMessage()
+        {
+            // await _busService.Publish<MessageDTO>(new MessageDTO { Id = "8745F0B1-AE0D-907B-DC53-3A1AD2CA7CF1", Type = "Update_EmployeeDependentStatus_Queue" });
+        }
+        public async Task SendDeleteEmployeeDependentStatusRabbitMQMessage()
+        {
+              await _busService.Publish<MessageDTO>(new MessageDTO { Id = "8745F0B1-AE0D-907B-DC53-3A1AD2CA7CF1", Type = "Delete_EmployeeDependentStatus_Queue" });
         }
     }
 }

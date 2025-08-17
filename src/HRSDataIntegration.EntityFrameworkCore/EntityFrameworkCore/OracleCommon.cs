@@ -26,6 +26,7 @@ namespace HRSToHRDataConverter.Common
         {
             var mappingId = new MappingId()
             {
+                Id =Guid.NewGuid(),
                 ConvertDateTime = DateTime.Now,
                 SubsystemCode = 1,
                 OldTableName = OldTableName,

@@ -47,6 +47,7 @@ public class Program
             builder.Services.AddTransient<IPersonDetailService, PersonDetailService>();
             builder.Services.AddTransient<ILanguageService, LanguageService>();
             builder.Services.AddTransient<IPersonContactService, PersonContactService>();
+            builder.Services.AddTransient<IEmployeeDependentStatusService, EmployeeDependentStatusService>();
             builder.Services.AddScoped(typeof(IOracleRepository<>), typeof(RepositoryBaseOracle<>));
             builder.Services.AddScoped(typeof(ISqlRepository<>), typeof(RepositoryBaseSQL<>));
             builder.Services.AddScoped<IOracleCommon, OracleCommon>();
