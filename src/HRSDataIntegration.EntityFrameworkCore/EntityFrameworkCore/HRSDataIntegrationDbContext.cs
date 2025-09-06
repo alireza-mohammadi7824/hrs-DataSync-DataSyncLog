@@ -18,6 +18,7 @@ using HRSDataIntegration.DTOs.Chart;
 using HRSDataIntegration.DTOs.Personeli;
 using HRSDataIntegration.DTOs;
 using System.Reflection.Emit;
+using System;
 
 namespace HRSDataIntegration.EntityFrameworkCore;
 
@@ -140,7 +141,8 @@ public class HRSDataIntegrationDbContext :
             .WithOne(ud => ud.Unit)
             .HasForeignKey(ud => ud.UnitId);
 
-        builder.HasDefaultSchema("Employee");
+        builder.HasDefaultSchema("DataConvert");
+
         builder.Entity<EmployeeAppointmentUnit>()
          .ToTable("EmployeeAppointmentUnit", schema: "Appointment");
 
@@ -228,7 +230,8 @@ public class HRSDataIntegrationDbContext :
         .ToTable("CountryDivisionType", schema: "OrganChart");
 
         builder.Entity<OrganizationChartNodeDetail>()
-         .Ignore(e => e.ParentPath);
+         .Property(e => e.ParentPath)
+         .HasColumnType("hierarchyid");
 
         base.OnModelCreating(builder);
 

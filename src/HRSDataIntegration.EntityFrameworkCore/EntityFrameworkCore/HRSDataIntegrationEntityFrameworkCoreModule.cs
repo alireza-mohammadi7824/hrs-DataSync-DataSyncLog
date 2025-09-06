@@ -68,11 +68,12 @@ public class HRSDataIntegrationEntityFrameworkCoreModule : AbpModule
 
         Configure<AbpDbContextOptions>(options =>
         {
-            options.UseSqlServer(); // Setting SQL Server as the default provider
+            options.UseSqlServer(x => x.UseHierarchyId()); // Setting SQL Server as the default provider
 
             options.Configure<HRSDataIntegrationDbContext>(context =>
             {
-                context.DbContextOptions.UseSqlServer(configuration.GetConnectionString("Default"));
+                context.DbContextOptions.UseSqlServer(configuration.GetConnectionString("Default")
+                                                        , x => x.UseHierarchyId());
             });
 
             options.Configure<OracleDbContext>(context =>

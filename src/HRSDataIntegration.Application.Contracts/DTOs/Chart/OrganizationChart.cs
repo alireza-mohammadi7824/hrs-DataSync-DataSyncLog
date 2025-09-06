@@ -13,7 +13,7 @@ namespace HRSDataIntegration.DTOs.Chart
         public string? Description { get; set; }
         public int ApproveDate { get; set; }
         public string ApproveNumber { get; set; }
-        public Guid OrganizationChartApproveId { get; set; }
+        public Guid OrganizationChartApproverId { get; set; }
         public Guid? TenantId { get; set; }
         public string ConcurrencyStamp { get; set; }
         public DateTime CreationTime { get; set; }

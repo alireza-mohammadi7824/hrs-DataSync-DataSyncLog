@@ -1,4 +1,5 @@
 ﻿using HRSDataIntegration.DTOs;
+using HRSDataIntegration.Entities;
 using HRSDataIntegration.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -416,7 +417,7 @@ namespace HRSDataIntegration.Services
             {
                 var unitDetail = _sqlRepositoryUnitDetail.GetQueryable();
                 var sqlUnitDetail = unitDetail
-                        .Where(x => x.UnitId.ToString() == Id)
+                        .Where(x => x.ID.ToString() == Id)
                         .Select(x => new
                         {
                             ID = x.ID,
@@ -463,13 +464,15 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
-        public void ConvertUpdateTBUNIT_Name(string Id)
+        public void ConvertUpdateTBUNIT_Name(string Id) //new UnitDetailId
         {
             try
             {
+
+
                 var unitDetail = _sqlRepositoryUnitDetail.GetQueryable();
                 var sqlUnitDetail = unitDetail
-                        .Where(x => x.UnitId.ToString() == Id)
+                        .Where(x => x.ID.ToString() == Id)
                         .Select(x => new
                         {
                             ID = x.ID,
@@ -477,7 +480,9 @@ namespace HRSDataIntegration.Services
                             NAME = x.Title,
                             EffectiveDateFrom = x.EffectiveDateFrom,
                             EffectiveDateTo = x.EffectiveDateTo
-                        }).FirstOrDefault();
+                        })
+                        .FirstOrDefault();
+
                 var Old_UnitId = _oracleCommon.OldColumnValue("HRS.TBUNIT", "ID", sqlUnitDetail.UNIT_ID.ToString());
 
                 var OracleTBUNITByUnitId = _unitRepository.GetQueryable();
@@ -499,6 +504,9 @@ namespace HRSDataIntegration.Services
                 _unitNameRepository.Create(TBUNIT_NAME);
                 _unitNameRepository.SaveChanges();
                 #endregion Insert to TBUNIT_NAME
+
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
+
                 // _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 72200, 8589934592);
             }
             catch (Exception ex)
@@ -588,7 +596,7 @@ namespace HRSDataIntegration.Services
             {
                 var unitDetail = _sqlRepositoryUnitDetail.GetQueryable();
                 var sqlUnitDetail = unitDetail
-                        .Where(x => x.UnitId.ToString() == Id)
+                        .Where(x => x.ID.ToString() == Id)
                         .Select(x => new
                         {
                             ID = x.ID,
@@ -634,8 +642,9 @@ namespace HRSDataIntegration.Services
             try
             {
                 var unitDetail = _sqlRepositoryUnitDetail.GetQueryable();
+
                 var sqlUnitDetail = unitDetail
-                        .Where(x => x.UnitId.ToString() == Id)
+                        .Where(x => x.ID.ToString() == Id)
                         .Select(x => new
                         {
                             ID = x.ID,
@@ -644,6 +653,7 @@ namespace HRSDataIntegration.Services
                             EffectiveDateFrom = _oracleCommon.ToStringDateTime(x.EffectiveDateFrom),
                             EffectiveDateTo = x.EffectiveDateTo == 0 ? null : _oracleCommon.ToStringDateTime(x.EffectiveDateTo),
                         }).FirstOrDefault();
+
                 var Old_UnitId = _oracleCommon.OldColumnValue("HRS.TBUNIT", "ID", sqlUnitDetail.UNIT_ID.ToString());
 
                 var OracleTBUNITByUnitId = _unitRepository.GetQueryable();

@@ -1,4 +1,5 @@
-﻿using Microsoft.SqlServer.Types;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.SqlServer.Types;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -29,15 +30,15 @@ namespace HRSDataIntegration.DTOs.Chart
         public Guid? PositionId { get; set; }
         public virtual Post Post { get; set; }
         public Guid? PostId { get; set; }
-        public Guid OrganizationChartNodeStatusId { get; set; }
+        public Guid? OrganizationChartNodeStatusId { get; set; }
         public Guid OrganizationChartNodeRelationTypeId { get; set; }
         public string? Description { get; set; }
         public int Order { get; set; }
         public string? Radif { get; set; }
         public virtual OrganizationChartNodeDetail Parent { get; set; }
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
         [NotMapped]
-        public SqlHierarchyId ParentPath { get; set; }
+        public HierarchyId? ParentPath { get; set; }
         public string LastActionTitle { get; set; }
         public Guid LastActionUniqueId { get; set; }
         public DateTime LastActivityTime { get; set; }

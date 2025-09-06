@@ -152,7 +152,12 @@ namespace HRSToHRDataConverter.Common
 
         public void UpdateDataSyncLog(Guid id, bool isSuccedded, string Exception = null)
         {
-            var entity  = _sQLDatabaseContext.DataSyncLog.FirstOrDefault(x => x.RecordId == id);
+            var entity  = _sQLDatabaseContext.DataSyncLog
+                                            .Where(x => x.RecordId == id 
+                                                     && x.IsDone == null)
+                                            .ToList()
+                                            .FirstOrDefault();
+
             if (entity == null)
             {
                 return;
@@ -167,6 +172,7 @@ namespace HRSToHRDataConverter.Common
                 entity.ExceptionMessage = Exception;
                 entity.LastModificationTime = DateTime.Now.ToString();
             }
+
             _sQLDatabaseContext.SaveChanges();
         }
     }

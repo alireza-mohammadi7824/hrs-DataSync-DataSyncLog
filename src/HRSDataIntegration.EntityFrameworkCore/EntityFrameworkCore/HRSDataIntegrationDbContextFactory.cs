@@ -19,7 +19,8 @@ public class HRSDataIntegrationDbContextFactory : IDesignTimeDbContextFactory<HR
 
         // تنظیم DbContextOptionsBuilder برای SQL Server
         var sqlServerBuilder = new DbContextOptionsBuilder<HRSDataIntegrationDbContext>()
-            .UseSqlServer(configuration.GetConnectionString("Default"));
+            .UseSqlServer(configuration.GetConnectionString("Default"),
+            x=> x.UseHierarchyId());
 
         // تنظیم DbContextOptionsBuilder برای Oracle
         var oracleBuilder = new DbContextOptionsBuilder<HRSDataIntegrationDbContext>()
