@@ -102,6 +102,7 @@ namespace HRSDataIntegration.Services
                     countryId = CountryDivisionDetailQueryabel.FirstOrDefault(x => x.ID == politicalProvinceParentId).CountryDivisionId.ToString();
                 }
                 #endregion if city
+
                 #region if village
                 else if (cityTypeId == Guid.Parse("8D827E19-B70D-4C72-8AA6-0FEAF737A78A"))
                 {
@@ -118,6 +119,7 @@ namespace HRSDataIntegration.Services
                     countryId = CountryDivisionDetailQueryabel.FirstOrDefault(x => x.ID == politicalProvinceParentId).CountryDivisionId.ToString();
                 }
                 #endregion if village
+
                 #region sql unitdetail query
                 var sqlUnitDetail = _sqlRepositoryUnitDetail.GetQueryable()
                           .Where(x => x.UnitId.ToString() == Id)
@@ -150,6 +152,7 @@ namespace HRSDataIntegration.Services
                               EffectiveDateTo = x.EffectiveDateTo,
                           }).FirstOrDefault();
                 #endregion sql unitdetail query
+
                 #region oracle id
                 var oldPROVINCE_ID = _oracleCommon.OldColumnValue("HRS.TBPROVINCE", "ID", sqlUnitDetail.PROVINCE_ID.ToString());
                 var OldCITY_IDMappingId = _oracleCommon.OldColumnValue("HRS.TBCITY", "ID", sqlUnitDetail.CITY_ID.ToString());
@@ -160,8 +163,9 @@ namespace HRSDataIntegration.Services
                 var OldPOLITICAL_PROVINCE_IDId = _oracleCommon.OldColumnValue("HRS.TBPOLITICAL_PROVINCE", "ID", sqlUnitDetail.POLITICAL_PROVINCE_ID.ToString());
                 var OldTYPE_CODE_IDId = _oracleCommon.OldColumnValue("HRS.TBCUNIT_TYPE", "ID", sqlUnitDetail.TYPE_CODE.ToString());
                 var OldParent_UnitId = _oracleCommon.OldColumnValue("HRS.TBUNIT", "ID", sqlUnitDetail.PARENT_UNIT_ID.ToString());
-                var OldSTATECode_ID = 2; //_oracleCommon.OldColumnValue("HRS.TBCUNIT_STATE", "CODE", sqlUnitDetail.TYPE_CODE.ToString());
+                var OldSTATECode_ID = 2;
                 #endregion oracle id
+
                 #region create oracle object
                 var tbUnit = new TBUNIT()
                 {
@@ -173,14 +177,16 @@ namespace HRSDataIntegration.Services
                     FAX = sqlUnitDetail.FAX,
                     CREATE_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.EffectiveDateFrom),
                     DESTROY_DATE = sqlUnitDetail.EffectiveDateTo == 0 ? null : _oracleCommon.ToStringDateTime(sqlUnitDetail.EffectiveDateTo),
-                    TYPE_CODE = int.Parse(OldTYPE_CODE_IDId),               //   uncomment 
-                    PARENT_UNIT_ID = OldParent_UnitId.ToString(),//sqlUnitDetail.PARENT_UNIT_ID,
+                    TYPE_CODE = int.Parse(OldTYPE_CODE_IDId),
+                    PARENT_UNIT_ID = OldParent_UnitId is null
+                                        ? null
+                                        : OldParent_UnitId.ToString(),
                     PROVINCE_ID = oldPROVINCE_ID,
                     CITY_ID = OldCITY_IDMappingId,
                     PART_ID = OldPART_IDMappingId,
                     BIG_VILLAGE_ID = OldBIG_VILLAGE_IDMappingId != null ? OldBIG_VILLAGE_IDMappingId : null,
                     VILLAGE_ID = OldVILLAGE_IDMappingId != null ? OldVILLAGE_IDMappingId : null,
-                    STATE_CODE = 2,//int.Parse(OldSTATECode_ID),
+                    STATE_CODE = 2, //FinalState
                     MEHR_CODE = sqlUnitDetail.MEHR_CODE,
                     TOWNSHIP_ID = OldTOWNSHIP_IDMappingId,
                     POLITICAL_PROVINCE_ID = OldPOLITICAL_PROVINCE_IDId,
@@ -189,6 +195,7 @@ namespace HRSDataIntegration.Services
                     CBI_CODE = sqlUnitDetail.CBI_CODE?.ToString(),
                 };
                 #endregion create oracle object
+
                 #region insert to db
                 _unitRepository.Create(tbUnit);
                 _unitRepository.SaveChanges();
@@ -196,17 +203,22 @@ namespace HRSDataIntegration.Services
                 #endregion insert to db
 
                 #region insert to TBUNIT_PARENT_DETAIL
-                var oldParentUnitId = _oracleCommon.OldColumnValue("TBUNIT", "ID", sqlUnitDetail.PARENT_UNIT_ID.ToString());
 
-                var TBUNIT_PARENT_DETAIL = new TBUNIT_PARENT_DETAIL()
+                if (sqlUnitDetail.PARENT_UNIT_ID != null)
                 {
-                    ID = Guid.NewGuid().ToString(),//tbParentDetail.ID.ToString(),
-                    UNIT_ID = sqlUnitDetail.ID.ToString(),
-                    PARENT_UNIT_ID = oldParentUnitId,
-                    EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE) // tbParentDetail.EXEC_DATE
-                };
-                _unitParentRepository.Create(TBUNIT_PARENT_DETAIL);
-                _unitParentRepository.SaveChanges();
+                    var oldParentUnitId = _oracleCommon.OldColumnValue("TBUNIT", "ID", sqlUnitDetail.PARENT_UNIT_ID.ToString());
+
+                    var TBUNIT_PARENT_DETAIL = new TBUNIT_PARENT_DETAIL()
+                    {
+                        ID = Guid.NewGuid().ToString(),//tbParentDetail.ID.ToString(),
+                        UNIT_ID = sqlUnitDetail.ID.ToString(),
+                        PARENT_UNIT_ID = oldParentUnitId,
+                        EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE) // tbParentDetail.EXEC_DATE
+                    };
+                    _unitParentRepository.Create(TBUNIT_PARENT_DETAIL);
+                    _unitParentRepository.SaveChanges();
+                }
+
                 #endregion insert to TBUNIT_PARENT_DETAIL
 
                 #region insert to TBUNIT_PROVINCE_DETAIL
@@ -290,30 +302,35 @@ namespace HRSDataIntegration.Services
 
                 #region  TBUNIT_BIG_VILLAGE_DETAIL
 
-                var oldBigVillageDetailId = _oracleCommon.OldColumnValue("TBBIG_VILLAGE", "ID", sqlUnitDetail.BIG_VILLAGE_ID.ToString());
-
-
-                var TBUNIT_BIG_VILLAGE_DETAIL = new TBUNIT_BIG_VILLAGE_DETAIL()
+                if (sqlUnitDetail.BIG_VILLAGE_ID != null && !string.IsNullOrEmpty(sqlUnitDetail.BIG_VILLAGE_ID))
                 {
-                    ID = Guid.NewGuid(), //tbUitBigVillageDetail.ID,
-                    UNIT_ID = sqlUnitDetail.ID, //Guid.Parse(oldBigVillageUnitId),
-                    BIG_VILLAGE_ID = Guid.Parse(oldBigVillageDetailId),
-                    EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE)
-                };
+                    var oldBigVillageDetailId = _oracleCommon.OldColumnValue("TBBIG_VILLAGE", "ID", sqlUnitDetail.BIG_VILLAGE_ID.ToString());
+
+                    var TBUNIT_BIG_VILLAGE_DETAIL = new TBUNIT_BIG_VILLAGE_DETAIL()
+                    {
+                        ID = Guid.NewGuid(), //tbUitBigVillageDetail.ID,
+                        UNIT_ID = sqlUnitDetail.ID, //Guid.Parse(oldBigVillageUnitId),
+                        BIG_VILLAGE_ID = Guid.Parse(oldBigVillageDetailId),
+                        EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE)
+                    }; 
+                }
 
                 #endregion  TBUNIT_BIG_VILLAGE_DETAIL
 
                 #region TBUNIT_VILLAGE_DETAIL
 
-                var oldVillageDetailId = _oracleCommon.OldColumnValue("TBVILLAGE", "ID", sqlUnitDetail.VILLAGE_ID.ToString());
-
-                var TBUNIT_VILLAGE_DETAIL = new TBUNIT_VILLAGE_DETAIL()
+                if (sqlUnitDetail.VILLAGE_ID != null && !string.IsNullOrEmpty(sqlUnitDetail.VILLAGE_ID))
                 {
-                    ID = Guid.NewGuid(), // tbUnitVillageDetail.ID,
-                    UNIT_ID = sqlUnitDetail.ID, //Guid.Parse(oldVillageUnitId),
-                    VILLAGE_ID = Guid.Parse(oldVillageDetailId),
-                    EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE)
-                };
+                    var oldVillageDetailId = _oracleCommon.OldColumnValue("TBVILLAGE", "ID", sqlUnitDetail.VILLAGE_ID.ToString());
+
+                    var TBUNIT_VILLAGE_DETAIL = new TBUNIT_VILLAGE_DETAIL()
+                    {
+                        ID = Guid.NewGuid(), // tbUnitVillageDetail.ID,
+                        UNIT_ID = sqlUnitDetail.ID, //Guid.Parse(oldVillageUnitId),
+                        VILLAGE_ID = Guid.Parse(oldVillageDetailId),
+                        EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE)
+                    }; 
+                }
 
                 //_unitVillageRepository.Create(TBUNIT_VILLAGE_DETAIL);
                 //_unitVillageRepository.SaveChanges();
@@ -398,14 +415,11 @@ namespace HRSDataIntegration.Services
                 string message = ex.Message?.Length > 500
                                 ? ex.Message.Substring(0, 500)
                                 : ex.Message;
+
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+
                 throw ex;
             }
-
-
-
-
-
         }
 
         #endregion insert to unit tables according to scenario

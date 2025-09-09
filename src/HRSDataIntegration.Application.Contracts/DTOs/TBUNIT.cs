@@ -29,7 +29,7 @@ namespace HRSDataIntegration.DTOs
         public int? BRANCH_RANK_CODE { get; set; }
         public int? BRANCH_TYPE_CODE { get; set; }
         public string? UNIT_RANKING_GROUP_ID { get; set; }
-        public int? MEHR_CODE { get; set; }
+        public int MEHR_CODE { get; set; }
         public string TOWNSHIP_ID { get; set; }
         public string POLITICAL_PROVINCE_ID { get; set; }
         public string? MANAGERTEL { get; set; }

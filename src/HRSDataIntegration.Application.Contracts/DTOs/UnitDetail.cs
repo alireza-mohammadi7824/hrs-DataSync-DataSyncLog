@@ -16,11 +16,11 @@ namespace HRSDataIntegration.DTOs
 
         public string Title { get; set; }
 
-        public int? MehrGostarCode { get; set; }
+        public int MehrGostarCode { get; set; }
 
         public int? CentralBankCode { get; set; }
 
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
         //public virtual Unit ParentUnit { get; set; }
         //public virtual Unit ParentUnit { get; set; }
 
