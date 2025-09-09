@@ -324,7 +324,7 @@ namespace HRSDataIntegration.Services
                                   )
                         .ToList();
 
-                    var ParentNode = hierarchyRecordsWithPost.FirstOrDefault(x => x.ParentId == organizationChartNodeDetailUnit.Id).Id;
+                    var ParentNode = hierarchyRecordsWithPost.FirstOrDefault(x => x.ParentId == organizationChartNodeDetailUnit.Id && x.PostId != null).Id;
 
                     var allChildren = GetChildrenRecursive(hierarchyRecordsWithPost, ParentNode);
 
