@@ -1,16 +1,10 @@
 ﻿using HRSDataIntegration.DTOs;
-using HRSDataIntegration.Entities;
 using HRSDataIntegration.Interfaces;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Polly;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HRSDataIntegration.Services
 {
@@ -19,7 +13,6 @@ namespace HRSDataIntegration.Services
         private readonly IOracleRepository<TBUNIT> _unitRepository;
         private readonly IOracleRepository<TBUNIT_PARENT_DETAIL> _unitParentRepository;
         private readonly IOracleRepository<TBUNIT_PROVINCE_DETAIL> _unitProvinceRepository;
-        private readonly IOracleRepository<TBUNIT_POLI_PROVINCE_DETAIL> _unitPoliProvinceRepository;
         private readonly IOracleRepository<TBUNIT_TOWNSHIP_DETAIL> _unitTownshipRepository;
         private readonly IOracleRepository<TBUNIT_BIG_VILLAGE_DETAIL> _unitBigVillageRepository;
         private readonly IOracleRepository<TBUNIT_VILLAGE_DETAIL> _unitVillageRepository;
@@ -31,12 +24,14 @@ namespace HRSDataIntegration.Services
         private readonly ISqlRepository<UnitDetail> _sqlRepositoryUnitDetail;
         private readonly ISqlRepository<CountryDivisionDetail> _sqlRepositoryCountryDivisionDetail;
         private readonly IOracleCommon _oracleCommon;
-        public UnitService(IOracleRepository<TBUNIT> unitRepository, ISqlRepository<UnitDetail> sqlRepositoryUnitDetail, IOracleCommon oracleCommon, 
+        private readonly ILogger<UnitService> _logger;
+
+        public UnitService(IOracleRepository<TBUNIT> unitRepository, ISqlRepository<UnitDetail> sqlRepositoryUnitDetail, IOracleCommon oracleCommon,
             ISqlRepository<CountryDivisionDetail> sqlRepositoryCountryDivisionDetail, IOracleRepository<TBUNIT_TOWNSHIP_DETAIL> unitTownshipRepository,
             IOracleRepository<TBUNIT_BIG_VILLAGE_DETAIL> unitBigVillageRepository, IOracleRepository<TBUNIT_PARENT_DETAIL> unitParentRepository,
             IOracleRepository<TBUNIT_VILLAGE_DETAIL> unitVillageRepository, IOracleRepository<TBUNIT_CITY_DETAIL> unitCityRepository, IOracleRepository<TBUNIT_PART_DETAIL> unitPartRepository,
             IOracleRepository<TBUNIT_DESTROY_DETAIL> unitDestroyRepository, IOracleRepository<TBUNIT_NAME> unitNameRepository,
-            IOracleRepository<TBUNIT_TYPE_DETAIL> unitTypeDetailRepository, IOracleRepository<TBUNIT_PROVINCE_DETAIL> unitProvinceRepository)
+            IOracleRepository<TBUNIT_TYPE_DETAIL> unitTypeDetailRepository, IOracleRepository<TBUNIT_PROVINCE_DETAIL> unitProvinceRepository, ILogger<UnitService> logger)
         {
             _oracleCommon = oracleCommon;
             _unitRepository = unitRepository;
@@ -52,6 +47,7 @@ namespace HRSDataIntegration.Services
             _unitTypeDetailRepository = unitTypeDetailRepository;
             _unitParentRepository = unitParentRepository;
             _unitProvinceRepository = unitProvinceRepository;
+            _logger = logger;
         }
         #region insert to unit tables according to scenario
         public void ConvertSqlUnitTableConvertToOracleTBUNITtableWhenInsert(string Id)
@@ -397,6 +393,8 @@ namespace HRSDataIntegration.Services
             }
             catch (Exception ex)
             {
+                _logger.LogCritical($"HRSLogger: Unit Service Error --> Exception message : {ex.Message}" +
+                    $"\n Exception: {ex}");
                 string message = ex.Message?.Length > 500
                                 ? ex.Message.Substring(0, 500)
                                 : ex.Message;
@@ -408,7 +406,7 @@ namespace HRSDataIntegration.Services
 
 
 
-        }      
+        }
 
         #endregion insert to unit tables according to scenario
         public void ConvertUpdateTBUNIT_PARENT_DETAIL(string Id)
@@ -553,7 +551,7 @@ namespace HRSDataIntegration.Services
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
                 throw ex;
             }
-        }       
+        }
         public void ConvertUpdateTBUNIT_Tels(string Id)
         {
             try
@@ -579,7 +577,7 @@ namespace HRSDataIntegration.Services
                 entity.TELEPHONE = sqlUnitDetail.Tels;
                 _unitRepository.SaveChanges();
                 // _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN",Id,72300, 8589934592);
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
             {
@@ -626,7 +624,7 @@ namespace HRSDataIntegration.Services
 
                 _unitDestroyRepository.Create(TBUNIT_DESTROY_DETAIL);
                 _unitDestroyRepository.SaveChanges();
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) ,true);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
             {
@@ -675,7 +673,7 @@ namespace HRSDataIntegration.Services
 
                 _unitDestroyRepository.Create(TBUNIT_DESTROY_DETAIL);
                 _unitDestroyRepository.SaveChanges();
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
             {

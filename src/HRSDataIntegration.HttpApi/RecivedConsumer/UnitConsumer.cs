@@ -1,11 +1,9 @@
 ﻿using HRSDataIntegration.DTOs;
 using HRSDataIntegration.Interfaces;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HRSDataIntegration.RecivedConsumer
@@ -35,41 +33,55 @@ namespace HRSDataIntegration.RecivedConsumer
             }
         }
         private readonly IUnitService _unitService;
-        public UnitConsumer(IUnitService unitService)
+        private readonly ILogger<UnitConsumer> _logger;
+        public UnitConsumer(IUnitService unitService, ILogger<UnitConsumer> logger)
         {
             _unitService = unitService;
+            _logger = logger;
         }
         public async Task Consume(ConsumeContext<MessageDTO> context)
         {
-            var TypeName = context.Message.Type;
-            var ID = context.Message.Id;
-            if (TypeName == "Insert_UNIT_Queue")
+            try
             {
-                _unitService.ConvertSqlUnitTableConvertToOracleTBUNITtableWhenInsert(ID);
+                var TypeName = context.Message.Type;
+                var ID = context.Message.Id;
+                if (TypeName == "Insert_UNIT_Queue")
+                {
+                    _unitService.ConvertSqlUnitTableConvertToOracleTBUNITtableWhenInsert(ID);
+                }
+                else if (TypeName == "Update_UnitParentId_Queue")
+                {
+                    _unitService.ConvertUpdateTBUNIT_PARENT_DETAIL(ID);
+                }
+                else if (TypeName == "Update_UnitName_Queue")
+                {
+                    _unitService.ConvertUpdateTBUNIT_Name(ID);
+                }
+                else if (TypeName == "Update_UnitAddress_Queue")
+                {
+                    _unitService.ConvertUpdateTBUNIT_Address(ID);
+                }
+                else if (TypeName == "Update_UnitTels_Queue")
+                {
+                    _unitService.ConvertUpdateTBUNIT_Tels(ID);
+                }
+                else if (TypeName == "Insert_UnitDestroyEdgham_Queue")
+                {
+                    _unitService.ConvertDestroy_Edgham_TBUNIT(ID);
+                }
+                else if (TypeName == "Insert_UnitDestroyEnhelal_Queue")
+                {
+                    _unitService.ConvertDestroy_Enhelal_TBUNIT(ID);
+                }
+                else
+                {
+                    _logger.LogCritical($"HRSLogger: Unit Consume Error --> TypeName: {context.Message.Type} , ID: {context.Message.Id} ");
+                }
             }
-            if (TypeName == "Update_UnitParentId_Queue")
+            catch (Exception ex)
             {
-                _unitService.ConvertUpdateTBUNIT_PARENT_DETAIL(ID);
-            }
-            if (TypeName == "Update_UnitName_Queue")
-            {
-                _unitService.ConvertUpdateTBUNIT_Name(ID);
-            }
-            if (TypeName == "Update_UnitAddress_Queue")
-            {
-                _unitService.ConvertUpdateTBUNIT_Address(ID);
-            }
-            if (TypeName == "Update_UnitTels_Queue")
-            {
-                _unitService.ConvertUpdateTBUNIT_Tels(ID);
-            }
-            if(TypeName == "Insert_UnitDestroyEdgham_Queue")
-            {
-                _unitService.ConvertDestroy_Edgham_TBUNIT(ID);
-            }
-            if (TypeName == "Insert_UnitDestroyEnhelal_Queue")
-            {
-                _unitService.ConvertDestroy_Enhelal_TBUNIT(ID);
+                _logger.LogCritical($"HRSLogger: Unit Consume Error --> Exception message : {ex.Message}" +
+                      $"\n Exception: {ex}");
             }
         }
     }

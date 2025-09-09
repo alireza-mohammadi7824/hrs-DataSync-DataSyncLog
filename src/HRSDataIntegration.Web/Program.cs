@@ -1,21 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using HRSDataIntegration.EntityFrameworkCore;
 using HRSDataIntegration.Interfaces;
 using HRSDataIntegration.Services;
 using HRSToHRDataConverter.Common;
-using HRSToHRDataConverter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
-using HRSDataIntegration.EntityFrameworkCore;
-using MassTransit;
-using HRSDataIntegration.Web.ServiceCollection;
-using HRSDataIntegration.EntityFrameworkCore.DataAnnotations;
-using Microsoft.Extensions.Configuration;
-using Microsoft.EntityFrameworkCore;
-using System.Configuration;
+using System;
+using System.Threading.Tasks;
 
 
 namespace HRSDataIntegration.Web;
@@ -51,6 +45,14 @@ public class Program
             builder.Services.AddScoped(typeof(IOracleRepository<>), typeof(RepositoryBaseOracle<>));
             builder.Services.AddScoped(typeof(ISqlRepository<>), typeof(RepositoryBaseSQL<>));
             builder.Services.AddScoped<IOracleCommon, OracleCommon>();
+
+            var config = builder.Configuration;
+
+            var logLevelString = config["Logging:LogLevel:Default"] ?? "Warning";
+            var logLevel = Enum.TryParse<LogEventLevel>(logLevelString, true, out var level)
+                ? level
+                : LogEventLevel.Warning;
+
             builder.Host
                 .AddAppSettingsSecretsJson()
                 .UseAutofac()
@@ -58,12 +60,12 @@ public class Program
                 {
                     loggerConfiguration
 #if DEBUG
-                        .MinimumLevel.Debug()
+                        .MinimumLevel.Is(logLevel)
 #else
             .MinimumLevel.Information()
 #endif
-                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                        .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+                        //.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                        //.MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
                         .Enrich.FromLogContext()
                         .WriteTo.Async(c => c.File("Logs/logs.txt"))
                         .WriteTo.Async(c => c.Console())
