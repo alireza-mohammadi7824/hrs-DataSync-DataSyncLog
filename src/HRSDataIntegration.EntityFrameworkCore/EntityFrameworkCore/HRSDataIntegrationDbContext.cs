@@ -141,7 +141,7 @@ public class HRSDataIntegrationDbContext :
             .WithOne(ud => ud.Unit)
             .HasForeignKey(ud => ud.UnitId);
 
-        builder.HasDefaultSchema("DataConvert");
+        builder.HasDefaultSchema("dbo");
 
         builder.Entity<EmployeeAppointmentUnit>()
          .ToTable("EmployeeAppointmentUnit", schema: "Appointment");

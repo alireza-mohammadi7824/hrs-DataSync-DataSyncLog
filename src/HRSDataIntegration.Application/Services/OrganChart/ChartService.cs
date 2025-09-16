@@ -65,7 +65,6 @@ namespace HRSDataIntegration.Services
             return result;
         }
 
-
         #region Insert Chart (Not Used)
 
         public void ConvertSqlChartTable_Insert_ToOracletable(string Id) //Id is UnitId
@@ -358,6 +357,8 @@ namespace HRSDataIntegration.Services
                             ParentPostId = postRecord.Parent.Id.ToString(),
                         });
 
+                        var radifForOracle = ConvertRadifForOldSystem(postRecord.Radif);
+
                         var tbCharPostTemplate = new TBCHART_POST_TEMPLATE
                         {
                             ID = newId,
@@ -373,7 +374,7 @@ namespace HRSDataIntegration.Services
                             CHILD_INDEX = postRecord.Order,
                             X_CORDINATE = postRecord.OrganizationChartNodeDiagrams.Select(x => Convert.ToInt32(x.xPos)).FirstOrDefault(),
                             Y_CORDINATE = postRecord.OrganizationChartNodeDiagrams.Select(x => Convert.ToInt32(x.yPos)).FirstOrDefault(),
-                            RADIF = postRecord.Radif,
+                            RADIF = radifForOracle,
                             FONT_NAME = "Tahoma",
                             FONT_SIZE = 8,
                             FONT_STYLE = 1,
@@ -523,12 +524,31 @@ namespace HRSDataIntegration.Services
 
         public string ConvertRadifForOldSystem(string newRadif)
         {
-            return "";
+            if (string.IsNullOrEmpty(newRadif))
+            {
+                return string.Empty;
+            }
+
+            var provinceCode = newRadif.Substring(0, 4);
+            var unitCode = newRadif.Substring(4, 6);
+            var postRadif = newRadif.Substring(10);
+            var hasPostIndex = (postRadif.Length % 6) == 0 ? false : true;
+
+            if (hasPostIndex)
+            {
+                postRadif = postRadif.Substring(0, postRadif.Length - 2);
+            }
+
+            var oldRadif =
+                provinceCode.Substring(2, 2) +
+                unitCode +
+                postRadif
+                ;
+
+            return oldRadif;
         }
 
         #endregion
-
-
 
     }
 

@@ -681,7 +681,7 @@ namespace HRSDataIntegration.Services
                     ID = sqlUnitDetail.ID.ToString(),
                     UNIT_ID = Old_UnitId,
                     DESTROY_START_DATE = sqlUnitDetail.EffectiveDateFrom,
-                    DESTROY_END_DATE = sqlUnitDetail.EffectiveDateTo
+                    DESTROY_END_DATE = ""
                 };
 
                 _unitDestroyRepository.Create(TBUNIT_DESTROY_DETAIL);
