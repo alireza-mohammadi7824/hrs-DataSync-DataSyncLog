@@ -10,6 +10,8 @@ namespace HRSDataIntegration.Services
 {
     public class UnitService : IUnitService
     {
+        #region Constructor
+
         private readonly IOracleRepository<TBUNIT> _unitRepository;
         private readonly IOracleRepository<TBUNIT_PARENT_DETAIL> _unitParentRepository;
         private readonly IOracleRepository<TBUNIT_PROVINCE_DETAIL> _unitProvinceRepository;
@@ -49,7 +51,11 @@ namespace HRSDataIntegration.Services
             _unitProvinceRepository = unitProvinceRepository;
             _logger = logger;
         }
-        #region insert to unit tables according to scenario
+
+        #endregion
+
+        #region New Unit
+
         public void ConvertSqlUnitTableConvertToOracleTBUNITtableWhenInsert(string Id)
         {
 
@@ -255,8 +261,8 @@ namespace HRSDataIntegration.Services
 
                 var TBUNIT_TYPE_DETAIL = new TBUNIT_TYPE_DETAIL()
                 {
-                    ID = Guid.NewGuid().ToString(),//tbUnitTypeDetail.ID,
-                    UNIT_ID = sqlUnitDetail.ID.ToString(),//Guid.Parse(oldUnitTypeDetailId),
+                    ID = Guid.NewGuid().ToString(),
+                    UNIT_ID = sqlUnitDetail.ID.ToString(),
                     UNIT_TYPE_CODE = int.Parse(oldUnitTypeCodeId),
                     EXEC_DATE = _oracleCommon.ToStringDateTime(sqlUnitDetail.CREATE_DATE)
                 };
@@ -264,9 +270,6 @@ namespace HRSDataIntegration.Services
                 _unitTypeDetailRepository.Create(TBUNIT_TYPE_DETAIL);
                 _unitTypeDetailRepository.SaveChanges();
 
-                //  _oracleCommon.InsertInto_DataConverter_MappingId(TBUNIT_TYPE_DETAIL.ID, Id);
-
-                _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 1000, 8589934592);
                 #endregion insert to TBUNIT_TYPE_DETAIL
 
                 #region  TBUNIT_POLI_PROVINCE_DETAIL
@@ -372,39 +375,7 @@ namespace HRSDataIntegration.Services
                 //_oracleCommon.InsertInto_DataConverter_MappingId(TBUNIT_PART_DETAIL.ID, Id);
                 #endregion TBUNIT_PART_DETAIL
 
-                /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                ///
-
-                //var tbUnitDestroyDetail = parentDetail.Select(x => new
-                //{
-                //    Id = x.ID,
-                //    UNIT_ID = x.UnitId,
-                //    DESTROY_START_DATE = x.EffectiveDateFrom,
-                //    DESTRIY_END_DATE = x.EffectiveDateTo
-                //}).FirstOrDefault(x => x.UNIT_ID.ToString() == Id);
-
-                //var oldDestroyUnitId = _oracleCommon.OldColumnValue("TBUNIT", "ID", tbUnitDestroyDetail.UNIT_ID.ToString());
-
-                //var TBUNIT_DESTROY_DETAIL = new TBUNIT_DESTROY_DETAIL()
-                //{
-                //    ID = tbUnitDestroyDetail.Id,
-                //    UNIT_ID = Guid.Parse(oldDestroyUnitId),
-                //    DESTROY_START_DATE = _oracleCommon.ToStringDateTime(tbUnitDestroyDetail.DESTROY_START_DATE),
-                //    DESTROY_END_DATE = _oracleCommon.ToStringDateTime(tbUnitDestroyDetail.DESTRIY_END_DATE)
-                //};
-
-
-                //_unitDestroyRepository.Create(TBUNIT_DESTROY_DETAIL);
-                //_unitDestroyRepository.SaveChanges();
-                // _oracleCommon.InsertInto_DataConverter_MappingId(TBUNIT_DESTROY_DETAIL.ID, Id);
-
-
-
-
-
-                // var CountryDivisionParentId = _sqlRepositoryCountryDivisionDetail.GetQueryable().FirstOrDefault(x => x.CountryDivisionId == CountryDivisionIdByUnitId.CountryDivisionId).CountryDivisionDetailParentId;
-
-
+                _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 1000, 8589934592);
 
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
@@ -422,7 +393,10 @@ namespace HRSDataIntegration.Services
             }
         }
 
-        #endregion insert to unit tables according to scenario
+        #endregion
+
+        #region Change Unit Parrent
+
         public void ConvertUpdateTBUNIT_PARENT_DETAIL(string Id)
         {
             try
@@ -464,7 +438,7 @@ namespace HRSDataIntegration.Services
                 _unitParentRepository.Create(TBUNIT_PARENT_DETAIL);
                 _unitParentRepository.SaveChanges();
                 #endregion Insert to TBUNIT_PARENT_DETAIL
-                // _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 1000, 8589934592);
+
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
@@ -476,13 +450,17 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region Change Unit Name
+
         public void ConvertUpdateTBUNIT_Name(string Id) //new UnitDetailId
         {
             try
             {
-
-
                 var unitDetail = _sqlRepositoryUnitDetail.GetQueryable();
+
                 var sqlUnitDetail = unitDetail
                         .Where(x => x.ID.ToString() == Id)
                         .Select(x => new
@@ -502,8 +480,11 @@ namespace HRSDataIntegration.Services
                        .Where(x => x.ID == Old_UnitId)
                        .ToList()
                        .FirstOrDefault();
+
                 entity.NAME = sqlUnitDetail.NAME;
+
                 _unitRepository.SaveChanges();
+
                 #region Insert to TBUNIT_NAME
 
                 var TBUNIT_NAME = new TBUNIT_NAME
@@ -518,8 +499,6 @@ namespace HRSDataIntegration.Services
                 #endregion Insert to TBUNIT_NAME
 
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
-
-                // _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", Id, 72200, 8589934592);
             }
             catch (Exception ex)
             {
@@ -530,6 +509,11 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region Change Unit Address
+
         public void ConvertUpdateTBUNIT_Address(string Id)
         {
             try
@@ -566,6 +550,11 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region Change Unit Telphones
+
         public void ConvertUpdateTBUNIT_Tels(string Id)
         {
             try
@@ -602,6 +591,11 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region Enhelal Unit
+
         public void ConvertDestroy_Enhelal_TBUNIT(string Id)
         {
             try
@@ -649,6 +643,11 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
+
+        #region Edgham Units
+
         public void ConvertDestroy_Edgham_TBUNIT(string Id)
         {
             try
@@ -698,5 +697,7 @@ namespace HRSDataIntegration.Services
                 throw ex;
             }
         }
+
+        #endregion
     }
 }

@@ -28,14 +28,14 @@ namespace HRSDataIntegration.Services
         private readonly ISqlRepository<OrganizationChart> _sqlRepositoryOrganizationChart;
         private readonly ISqlRepository<OrganizationChartLimitation> _sqlRepositoryOrganizationChartLimitation;
 
-        public ChartService(IOracleCommon oracleCommon, 
+        public ChartService(IOracleCommon oracleCommon,
             IOracleRepository<TBCHART_TEMPLATE_NEW> TBCHART_TEMPLATE_NEW,
             IOracleRepository<TBCHART_POST_TEMPLATE> TBCHART_POST_TEMPLATE,
             IOracleRepository<TBCHART_LINK> TBCHART_LINK,
             ISqlRepository<OrganizationChartNodeDetail> sqlRepositoryOrganizationChartNodeDetail,
             ISqlRepository<OrganizationChart> sqlRepositoryOrganizationChart,
-            ISqlRepository<OrganizationChartLimitation> sqlRepositoryOrganizationChartLimitation, 
-            IOracleRepository<TBUNIT> tBUnit, 
+            ISqlRepository<OrganizationChartLimitation> sqlRepositoryOrganizationChartLimitation,
+            IOracleRepository<TBUNIT> tBUnit,
             IOracleRepository<TBPROVINCE> tBProvince)
         {
             _oracleCommon = oracleCommon;
@@ -51,10 +51,10 @@ namespace HRSDataIntegration.Services
 
         public List<OrganizationChartNodeDetail> GetChildrenRecursive(List<OrganizationChartNodeDetail> allRecords, Guid parentId)
         {
-            
+
             var children = allRecords.Where(x => x.ParentId == parentId && x.PostId != null).ToList();
             var result = new List<OrganizationChartNodeDetail>(children);
-            
+
             if (children.Any())
             {
                 foreach (var child in children)
@@ -66,6 +66,8 @@ namespace HRSDataIntegration.Services
         }
 
 
+        #region Insert Chart (Not Used)
+
         public void ConvertSqlChartTable_Insert_ToOracletable(string Id) //Id is UnitId
         {
             try
@@ -74,14 +76,14 @@ namespace HRSDataIntegration.Services
                 var OrganizationChartNodeDetailQueryable = _sqlRepositoryOrganizationChartNodeDetail.GetQueryable();
                 var chartTemplate = OrganizationChartNodeDetailQueryable.Select(x => new
                 {
-                    Id = x.Id,
+                    x.Id,
                     ApproveDate = _oracleCommon.ToStringDateTime(x.OrganizationChart.EffectiveDate),
                     Domain_Code = 8589934592,
-                    UnitId = x.UnitId,
+                    x.UnitId,
                     ApproveNumber = x.OrganizationChart.ApproveNumber == "" ? "1" : "0",
-                    StateCode = x.OrganizationChart.StateCode,
-                    Description = x.OrganizationChart.Description,
-                    OrganizationChartId = x.OrganizationChartId
+                    x.OrganizationChart.StateCode,
+                    x.OrganizationChart.Description,
+                    x.OrganizationChartId
                 }).Where(x => x.UnitId.ToString() == Id).FirstOrDefault();
                 #endregion get queryable of OrganizationChartNodeDetail
 
@@ -214,7 +216,7 @@ namespace HRSDataIntegration.Services
                     }
                     #endregion insert into TBCHART_LINK
                 }
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id) , true);
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
             {
@@ -226,12 +228,16 @@ namespace HRSDataIntegration.Services
             }
         }
 
+        #endregion
+
+        #region Insert Chart
+
         public void ConvertSqlChartTable_Update_ToOracletable(string Id) //Id is OrganizationChartId
         {
             try
             {
                 var organChart = _sqlRepositoryOrganizationChart.GetQueryable()
-                                     .Select(x => new { EffecitveDate = x.EffectiveDate, Id = x.Id })
+                                     .Select(x => new { EffecitveDate = x.EffectiveDate, x.Id })
                                      .Where(x => x.Id.ToString() == Id).FirstOrDefault();
 
                 var organChartlimitationQueryable = _sqlRepositoryOrganizationChartLimitation.GetQueryable();
@@ -244,7 +250,7 @@ namespace HRSDataIntegration.Services
                 foreach (var unitId in limitationUnit)
                 {
                     var organChartNodeDetailQueryable = _sqlRepositoryOrganizationChartNodeDetail.GetQueryable()
-                                                                                .Include(x=> x.OrganizationChart);
+                                                                                .Include(x => x.OrganizationChart);
                     var organizationChartNodeDetailUnit = organChartNodeDetailQueryable
                         .Where(x =>
                                   x.UnitId == unitId && x.EffectiveDateFrom <= organChart.EffecitveDate
@@ -275,14 +281,22 @@ namespace HRSDataIntegration.Services
 
                     var oldUnitId = _oracleCommon.OldColumnValue("HRS.TBUnit", "ID", organizationChartNodeDetailUnit.UnitId.ToString());
 
-                    var oldUnit = _TBUnit.GetQueryable().Where(x=> x.ID == oldUnitId).ToList().FirstOrDefault();
+                    var oldUnit = _TBUnit.GetQueryable().Where(x => x.ID == oldUnitId).ToList().FirstOrDefault();
                     var oldProvicne = _TBProvince.GetQueryable().Where(x => x.ID == oldUnit.PROVINCE_ID).ToList().FirstOrDefault();
 
-                    var TBCHART_TEMPLATE_NEW = new TBCHART_TEMPLATE_NEW()
+                    var prevChartTemplate = _TBCHART_TEMPLATE_NEW.GetQueryable()
+                        .Where(x => x.UNIT_ID == oldUnitId
+                            && x.APPROVED_DATE == _oracleCommon.ToStringDateTime(organChart.EffecitveDate)
+                            && x.STATE_CODE == 4)
+                        .ToList();
+
+                    var tBCHART_TEMPLATE_NEW = new TBCHART_TEMPLATE_NEW()
                     {
                         ID = Guid.NewGuid().ToString(),
                         APPROVED_DATE = _oracleCommon.ToStringDateTime(organChart.EffecitveDate),
-                        ORIGIN_NO = organizationChartNodeDetailUnit.OrganizationChart.ApproveNumber,
+                        ORIGIN_NO = prevChartTemplate == null
+                                    ? "0"
+                                    : (Convert.ToInt32(prevChartTemplate.Max(x => x.ORIGIN_NO)) + 1).ToString(),
                         DOMAIN_CODE = oldProvicne.DOMAIN_CODE,
                         UNIT_ID = oldUnit_ID,
                         ORIGIN_CODE = 1,
@@ -301,24 +315,15 @@ namespace HRSDataIntegration.Services
                         FOR_COLOR = "-16777216",
                     };
 
-
-
                     #endregion insert into TBCHART_TEMPLATE_NEW
 
-                    //var hierarchyRecordsWithUnit = organChartNodeDetailQueryable
-                    //.Include(x => x.Parent)
-                    //.Where(x => x.OrganizationChartId == organizationChartNodeDetailUnit.OrganizationChartId
-                    //         && x.UnitId != null)
-                    //.FirstOrDefault();
-
-                    var hierarchyRecordsWithPost = 
+                    var hierarchyRecordsWithPost =
                             organChartNodeDetailQueryable
-                        .Include(x=> x.OrganizationChartNodeDiagrams)
+                        .Include(x => x.OrganizationChartNodeDiagrams)
                         .Include(x => x.Parent)
                             .ThenInclude(x => x.OrganizationChartNodeDiagrams)
                         .Where(x =>
                                     x.ParentPath.IsDescendantOf(organizationChartNodeDetailUnit.ParentPath)
-                                    //HRSDataIntegrationDbContext.IsDescendantOf(x.ParentPath, organizationChartNodeDetailUnit.ParentPath)
                                     && x.EffectiveDateFrom <= organChart.EffecitveDate
                                     && (x.EffectiveDateTo > organChart.EffecitveDate || x.EffectiveDateTo == 0)
                                   )
@@ -346,8 +351,8 @@ namespace HRSDataIntegration.Services
 
                         var newId = Guid.NewGuid().ToString();
 
-                        chartPostTemplateMapList.Add(new ChartPostTemplateMap() 
-                        { 
+                        chartPostTemplateMapList.Add(new ChartPostTemplateMap()
+                        {
                             Id = newId,
                             PostId = postRecord.Id.ToString(),
                             ParentPostId = postRecord.Parent.Id.ToString(),
@@ -357,7 +362,7 @@ namespace HRSDataIntegration.Services
                         {
                             ID = newId,
                             APPROVED_COUNT = 1, //x.OrganizationChart.OrganizationChartLimitations.Select(x => x.Quantity).FirstOrDefault(),
-                            CHART_TEMPLATE_ID = TBCHART_TEMPLATE_NEW.ID,
+                            CHART_TEMPLATE_ID = tBCHART_TEMPLATE_NEW.ID,
                             PARENT_POST_ID = postRecord.ParentId.ToString() == organizationChartNodeDetailUnit.Id.ToString()
                                                                 ? null
                                                                 : postRecord.Parent.Id.ToString(),
@@ -407,7 +412,7 @@ namespace HRSDataIntegration.Services
                             var link = new TBCHART_LINK()
                             {
                                 ID = Guid.NewGuid().ToString(),
-                                CHART_ID = TBCHART_TEMPLATE_NEW.ID,
+                                CHART_ID = tBCHART_TEMPLATE_NEW.ID,
                                 START_CON_CODE = ConvertNodePointIndexToOldSystem(postRecord.OrganizationChartNodeDiagrams.Select(x => int.Parse(x.FromPointIndex)).FirstOrDefault()),
                                 END_CON_CODE = ConvertNodePointIndexToOldSystem(postRecord.OrganizationChartNodeDiagrams.Select(x => int.Parse(x.ToPointIndex)).FirstOrDefault()),
                                 PARENT_NODE_ID = postRecord.Parent.Id.ToString(),
@@ -449,7 +454,7 @@ namespace HRSDataIntegration.Services
                         }
                     }
 
-                    _TBCHART_TEMPLATE_NEW.Create(TBCHART_TEMPLATE_NEW);
+                    _TBCHART_TEMPLATE_NEW.Create(tBCHART_TEMPLATE_NEW);
 
                     if (chartPostTemplateList.Count > 0)
                     {
@@ -460,13 +465,14 @@ namespace HRSDataIntegration.Services
                     {
                         _TBCHART_LINK.CreateList(chartLinkList);
                     }
-                    
 
                     _TBCHART_TEMPLATE_NEW.SaveChanges();
                     _TBCHART_POST_TEMPLATE.SaveChanges();
                     _TBCHART_LINK.SaveChanges();
+
+                    _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", tBCHART_TEMPLATE_NEW.ID, 1010, 8589934592);
                 }
-                
+
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
             }
             catch (Exception ex)
@@ -485,7 +491,7 @@ namespace HRSDataIntegration.Services
 
             switch (NewPointIndex)
             {
-                case 0: 
+                case 0:
                     {
                         oldPointIndex = 0;
                         break;
@@ -505,18 +511,28 @@ namespace HRSDataIntegration.Services
                         oldPointIndex = 2;
                         break;
                     }
-                default: 
+                default:
                     {
                         oldPointIndex = 0;
-                            break;
+                        break;
                     }
             }
 
             return oldPointIndex;
         }
+
+        public string ConvertRadifForOldSystem(string newRadif)
+        {
+            return "";
+        }
+
+        #endregion
+
+
+
     }
 
-    public class ChartPostTemplateMap 
+    public class ChartPostTemplateMap
     {
         public string Id { get; set; }
         public string PostId { get; set; }

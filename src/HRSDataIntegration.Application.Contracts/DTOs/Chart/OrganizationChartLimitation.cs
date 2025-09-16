@@ -9,7 +9,7 @@ namespace HRSDataIntegration.DTOs.Chart
     public class OrganizationChartLimitation
     {
         public  Guid Id { get ; set; }
-        public int ProcessType { get; set; }
+        //public int ProcessType { get; set; }
         public int Quantity { get; set; }
 
         public DateTime CreationTime { get; set; }
@@ -38,7 +38,7 @@ namespace HRSDataIntegration.DTOs.Chart
         public Guid OrganizationChartId { get; set; }
 
         public virtual Post Post { get; set; }
-        public Guid PostId { get; set; }
+        public Guid? PostId { get; set; }
 
         public virtual Unit Unit { get; set; }
         public Guid UnitId { get; set; }
