@@ -48,10 +48,10 @@ namespace HRSDataIntegration.Services
         {
            // await _busService.Publish<MessageDTO>(new MessageDTO { Id = "84DC5C22-16E8-E3D9-8544-3A19F9EF3CEA", Type = "Delete_PROVINCE_Queue" });
         }
-        public async Task SendChartRabbitMQMessage()
+        public async Task SendChartRabbitMQMessage(string OrganizationChartId)
         {
            // await _busService.Publish<MessageDTO>(new MessageDTO { Id = "78CF45B7-5336-4588-DC13-3A19B33F499E", Type = "Insert_CHART_Queue" });
-           // await _busService.Publish<MessageDTO>(new MessageDTO { Id = "4870C49D-C372-E7AE-321F-3A19B33F49CD", Type = "Update_CHART_Queue" });
+           await _busService.Publish<MessageDTO>(new MessageDTO { Id = OrganizationChartId, Type = "Update_CHART_Queue" });
         }
         public async Task SendUnitParentUpdateRabbitMQMessage()
         {
@@ -249,7 +249,7 @@ namespace HRSDataIntegration.Services
         }
         public async Task SendDeleteEmployeeDependentStatusRabbitMQMessage()
         {
-              await _busService.Publish<MessageDTO>(new MessageDTO { Id = "8745F0B1-AE0D-907B-DC53-3A1AD2CA7CF1", Type = "Delete_EmployeeDependentStatus_Queue" });
+              //await _busService.Publish<MessageDTO>(new MessageDTO { Id = "8745F0B1-AE0D-907B-DC53-3A1AD2CA7CF1", Type = "Delete_EmployeeDependentStatus_Queue" });
         }
     }
 }

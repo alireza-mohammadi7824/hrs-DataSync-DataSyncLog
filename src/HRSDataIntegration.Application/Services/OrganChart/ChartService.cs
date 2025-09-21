@@ -1,5 +1,6 @@
 ﻿using HRSDataIntegration.DTOs;
 using HRSDataIntegration.DTOs.Chart;
+using HRSDataIntegration.DTOs.Personeli;
 using HRSDataIntegration.EntityFrameworkCore;
 using HRSDataIntegration.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -278,24 +279,50 @@ namespace HRSDataIntegration.Services
 
                     #region insert into TBCHART_TEMPLATE_NEW
 
-                    var oldUnitId = _oracleCommon.OldColumnValue("HRS.TBUnit", "ID", organizationChartNodeDetailUnit.UnitId.ToString());
+                    //var oldUnitId = _oracleCommon.OldColumnValue("HRS.TBUnit", "ID", organizationChartNodeDetailUnit.UnitId.ToString());
 
-                    var oldUnit = _TBUnit.GetQueryable().Where(x => x.ID == oldUnitId).ToList().FirstOrDefault();
+                    var oldUnit = _TBUnit.GetQueryable().Where(x => x.ID == oldUnit_ID).ToList().FirstOrDefault();
                     var oldProvicne = _TBProvince.GetQueryable().Where(x => x.ID == oldUnit.PROVINCE_ID).ToList().FirstOrDefault();
 
                     var prevChartTemplate = _TBCHART_TEMPLATE_NEW.GetQueryable()
-                        .Where(x => x.UNIT_ID == oldUnitId
+                        .Where(x => x.UNIT_ID == oldUnit_ID
                             && x.APPROVED_DATE == _oracleCommon.ToStringDateTime(organChart.EffecitveDate)
                             && x.STATE_CODE == 4)
                         .ToList();
+
+                    var originNo = 0;
+
+                    if (prevChartTemplate != null)
+                    {
+                        foreach (var item in prevChartTemplate)
+                        {
+                            if (!string.IsNullOrEmpty(item.ORIGIN_NO)) 
+                            {
+                                var prevOriginNo = 0;
+
+                                int.TryParse(item.ORIGIN_NO, out prevOriginNo);
+
+                                if (prevOriginNo > 0)
+                                {
+                                    if (prevOriginNo > originNo)
+                                    {
+                                        originNo = prevOriginNo;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (originNo > 0)
+                        {
+                            originNo++;
+                        }
+                    }
 
                     var tBCHART_TEMPLATE_NEW = new TBCHART_TEMPLATE_NEW()
                     {
                         ID = Guid.NewGuid().ToString(),
                         APPROVED_DATE = _oracleCommon.ToStringDateTime(organChart.EffecitveDate),
-                        ORIGIN_NO = prevChartTemplate == null
-                                    ? "0"
-                                    : (Convert.ToInt32(prevChartTemplate.Max(x => x.ORIGIN_NO)) + 1).ToString(),
+                        ORIGIN_NO = originNo.ToString(),
                         DOMAIN_CODE = oldProvicne.DOMAIN_CODE,
                         UNIT_ID = oldUnit_ID,
                         ORIGIN_CODE = 1,
@@ -368,7 +395,7 @@ namespace HRSDataIntegration.Services
                                                                 ? null
                                                                 : postRecord.Parent.Id.ToString(),
                             POST_ID = _oracleCommon.OldColumnValue("HRS.TBPOST", "ID", postRecord.PostId.ToString()),
-                            DESCRIPTION = postRecord.Parent.Description,
+                            DESCRIPTION = postRecord.Description,
                             WIDTH = postRecord.OrganizationChartNodeDiagrams.Select(x => (int?)Convert.ToInt32(x.Width)).FirstOrDefault(),
                             HEIGHT = postRecord.OrganizationChartNodeDiagrams.Select(x => (int?)Convert.ToInt32(x.Height)).FirstOrDefault(),
                             CHILD_INDEX = postRecord.Order,
@@ -472,9 +499,12 @@ namespace HRSDataIntegration.Services
                     _TBCHART_LINK.SaveChanges();
 
                     _oracleCommon.TBActivity_Log("TBACTIVITY_LOG_CHARTDESIGN", tBCHART_TEMPLATE_NEW.ID, 1010, 8589934592);
+
+                    _oracleCommon.InsertInto_DataConverter_MappingId(tBCHART_TEMPLATE_NEW.ID, Id, "HRS.TBCHART_TEMPLATE_NEW", "ID", "OrganChart.OrganizationChart", "ID");
                 }
 
                 _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), true);
+
             }
             catch (Exception ex)
             {
