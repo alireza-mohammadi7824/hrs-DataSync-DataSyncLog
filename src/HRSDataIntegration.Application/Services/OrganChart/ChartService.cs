@@ -406,7 +406,7 @@ namespace HRSDataIntegration.Services
                             FONT_SIZE = 8,
                             FONT_STYLE = 1,
                             FONT_COLOR = "-16777216",
-                            DOMAIN_CODE = 8589934592,
+                            DOMAIN_CODE = oldProvicne.DOMAIN_CODE,
                             F_P_CONNECTOR_WIDTH = 0,
                             T_C_CONNECTOR_WIDTH = 0,
                             T_C_CONNECTOR_DASH_STYLE_CODE = 0,
@@ -457,7 +457,7 @@ namespace HRSDataIntegration.Services
                                 FONT_STYLE = 0,
                                 //POINTS_DATA = "",
                                 AUTODRAW = 1,
-                                DOMAIN_CODE = 8589934592
+                                DOMAIN_CODE = oldProvicne.DOMAIN_CODE
                             };
                             chartLinkList.Add(link);
                         }
