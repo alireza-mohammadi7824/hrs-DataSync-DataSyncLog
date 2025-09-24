@@ -511,7 +511,12 @@ namespace HRSDataIntegration.Services
                 string message = ex.Message?.Length > 500
                                 ? ex.Message.Substring(0, 500)
                                 : ex.Message;
-                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message);
+
+                var stackTarce = (ex.StackTrace?.Length > (500 - message.Length))
+                                ? ex.StackTrace.Substring(0, (500 - message.Length))
+                                : ex.StackTrace;
+
+                _oracleCommon.UpdateDataSyncLog(Guid.Parse(Id), false, message + "|" + stackTarce);
                 throw ex;
             }
         }
