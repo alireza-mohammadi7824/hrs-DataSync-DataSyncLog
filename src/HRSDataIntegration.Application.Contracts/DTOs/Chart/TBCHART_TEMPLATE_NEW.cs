@@ -17,7 +17,7 @@ namespace HRSDataIntegration.DTOs.Chart
         public int STATE_CODE { get; set; }
         public int LEFT_MARGIN { get; set; }
         public int TOP_MARGIN { get; set; }
-        public int BACK_COLOR { get; set; }
+        public string BACK_COLOR { get; set; }
         public string? CHART_DESCRIPTION { get; set; }
         public int AUTO_DRAW_CODE { get; set; }
         public int CHART_TYPE_CODE { get; set; }

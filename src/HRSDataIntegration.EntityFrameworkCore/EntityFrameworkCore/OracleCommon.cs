@@ -1,5 +1,4 @@
-﻿
-using HRSDataIntegration;
+﻿using HRSDataIntegration;
 using HRSDataIntegration.DTOs;
 using HRSDataIntegration.EntityFrameworkCore;
 using HRSDataIntegration.EntityFrameworkCore.DataAnnotations;
@@ -71,14 +70,18 @@ namespace HRSToHRDataConverter.Common
         public string OldColumnValue(string oldTableName, string oldColumnName, string newColumnValue)
         {
           return  _sQLDatabaseContext.MappingId
-                            .Where(x => x.NewColumnValue == newColumnValue && x.OldTableName.Contains(oldTableName) && x.OldColumnName == oldColumnName)
+                            .Where(x => x.NewColumnValue == newColumnValue 
+                                        && x.OldTableName == oldTableName
+                                        && x.OldColumnName == oldColumnName)
                             .Select(x => x.OldColumnValue)
                             .FirstOrDefault();
         }
         public string DomainMappingCodeOldColumnValue(string oldTableName, string oldColumnName, string newColumnValue)
         {
             return _sQLDatabaseContext.MappingId
-                .Where(x => x.NewColumnValue == newColumnValue && x.OldTableName.Contains(oldTableName) && x.OldColumnName == "MappingDomainCode")
+                .Where(x => x.NewColumnValue == newColumnValue 
+                        && x.OldTableName == oldTableName
+                        && x.OldColumnName == "MappingDomainCode")
                 .Select(x => x.OldColumnValue)
                 .FirstOrDefault();
         }
@@ -118,8 +121,8 @@ namespace HRSToHRDataConverter.Common
             var length = dateString.Length;
 
             // بررسی فرمت ورودی
-            if (length != 8)
-                throw new ArgumentException("Invalid date format. Expected YYYYMMDD.");
+            //if (length != 8)
+                //throw new ArgumentException("Invalid date format. Expected YYYYMMDD.");
 
             // استخراج سال، ماه و روز
             int year = int.Parse(dateString.Substring(0, 4));
@@ -152,11 +155,12 @@ namespace HRSToHRDataConverter.Common
 
         public void UpdateDataSyncLog(Guid id, bool isSuccedded, string Exception = null)
         {
-            var entity  = _sQLDatabaseContext.DataSyncLog
+            var entity2  = _sQLDatabaseContext.DataSyncLog
                                             .Where(x => x.RecordId == id 
                                                      && x.IsDone == null)
-                                            .ToList()
-                                            .FirstOrDefault();
+                                            ;
+
+            var entity = entity2.FirstOrDefault();
 
             if (entity == null)
             {
@@ -165,12 +169,12 @@ namespace HRSToHRDataConverter.Common
             else if (entity != null && isSuccedded)
             {
                 entity.IsDone = true;
-                entity.LastModificationTime = DateTime.Now.ToString();
+                entity.LastModificationTime = DateTime.Now;
             }
             else if (entity != null && !isSuccedded) {
                 entity.IsDone = false;
                 entity.ExceptionMessage = Exception;
-                entity.LastModificationTime = DateTime.Now.ToString();
+                entity.LastModificationTime = DateTime.Now;
             }
 
             _sQLDatabaseContext.SaveChanges();

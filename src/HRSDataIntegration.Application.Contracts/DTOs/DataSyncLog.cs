@@ -17,7 +17,7 @@ namespace HRSDataIntegration.DTOs
             public DateTime CreationTime { get; set; }
             public Guid? CreatorId { get; set; }
             public Guid? LastModifierId { get; set; }
-            public string? LastModificationTime { get; set; }
+            public DateTime? LastModificationTime { get; set; }
             public Guid? DeleterId { get; set; }
             public DateTime? DeletionTime { get; set; }
             public bool IsDeleted { get; set; }        

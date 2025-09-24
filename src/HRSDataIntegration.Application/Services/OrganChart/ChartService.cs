@@ -101,7 +101,7 @@ namespace HRSDataIntegration.Services
                     STATE_CODE = 4,//chartTemplate.StateCode,
                     LEFT_MARGIN = 20,
                     TOP_MARGIN = 20,
-                    BACK_COLOR = -1,
+                    BACK_COLOR = "-1",
                     CHART_DESCRIPTION = chartTemplate.Description,
                     AUTO_DRAW_CODE = 1,
                     CHART_TYPE_CODE = 1,
@@ -286,7 +286,7 @@ namespace HRSDataIntegration.Services
 
                     var prevChartTemplate = _TBCHART_TEMPLATE_NEW.GetQueryable()
                         .Where(x => x.UNIT_ID == oldUnit_ID
-                            && x.APPROVED_DATE == _oracleCommon.ToStringDateTime(organChart.EffecitveDate)
+                            && _oracleCommon.ToStringDateTime(organChart.EffecitveDate).Contains(x.APPROVED_DATE)
                             && x.STATE_CODE == 4)
                         .ToList();
 
@@ -329,7 +329,7 @@ namespace HRSDataIntegration.Services
                         STATE_CODE = 4,
                         LEFT_MARGIN = 20,
                         TOP_MARGIN = 20,
-                        BACK_COLOR = -1,
+                        BACK_COLOR = "-1",
                         CHART_DESCRIPTION = organizationChartNodeDetailUnit.Description,
                         AUTO_DRAW_CODE = 0,
                         CHART_TYPE_CODE = 1,
@@ -589,9 +589,9 @@ namespace HRSDataIntegration.Services
 
     public class ChartPostTemplateMap
     {
-        public string Id { get; set; }
-        public string PostId { get; set; }
-        public string ParentPostId { get; set; }
+        public string? Id { get; set; }
+        public string? PostId { get; set; }
+        public string? ParentPostId { get; set; }
     }
 }
 
