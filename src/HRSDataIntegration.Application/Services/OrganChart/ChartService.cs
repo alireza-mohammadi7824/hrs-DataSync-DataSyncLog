@@ -286,13 +286,13 @@ namespace HRSDataIntegration.Services
 
                     var prevChartTemplate = _TBCHART_TEMPLATE_NEW.GetQueryable()
                         .Where(x => x.UNIT_ID == oldUnit_ID
-                            && _oracleCommon.ToStringDateTime(organChart.EffecitveDate).Contains(x.APPROVED_DATE)
-                            && x.STATE_CODE == 4)
+                                && x.APPROVED_DATE == _oracleCommon.ToStringDateTime(organChart.EffecitveDate)
+                                && x.STATE_CODE == 4)
                         .ToList();
 
                     var originNo = 0;
 
-                    if (prevChartTemplate != null)
+                    if (prevChartTemplate.Count > 0)
                     {
                         foreach (var item in prevChartTemplate)
                         {
@@ -312,10 +312,9 @@ namespace HRSDataIntegration.Services
                             }
                         }
 
-                        if (originNo > 0)
-                        {
+                        
                             originNo++;
-                        }
+                        
                     }
 
                     var tBCHART_TEMPLATE_NEW = new TBCHART_TEMPLATE_NEW()
@@ -350,6 +349,7 @@ namespace HRSDataIntegration.Services
                             .ThenInclude(x => x.OrganizationChartNodeDiagrams)
                         .Where(x =>
                                     x.ParentPath.IsDescendantOf(organizationChartNodeDetailUnit.ParentPath)
+                                    && x.StateCode == 100
                                     && x.EffectiveDateFrom <= organChart.EffecitveDate
                                     && (x.EffectiveDateTo > organChart.EffecitveDate || x.EffectiveDateTo == 0)
                                   )
