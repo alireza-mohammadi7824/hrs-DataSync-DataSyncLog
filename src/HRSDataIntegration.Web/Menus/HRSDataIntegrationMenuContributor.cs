@@ -35,6 +35,15 @@ public class HRSDataIntegrationMenuContributor : IMenuContributor
             )
         );
 
+         context.Menu.AddItem(
+             new ApplicationMenuItem(
+                 HRSDataIntegrationMenus.Home,
+                 l["DataSyncLog"],
+                  "~/DataSyncLog",
+                  icon: "fa fa-history",
+                  order: 2
+             )
+         );
 
         //Administration
         var administration = context.Menu.GetAdministration();
