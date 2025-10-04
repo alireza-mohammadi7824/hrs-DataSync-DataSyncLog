@@ -10,6 +10,6 @@ namespace HRSDataIntegration.Services.DataSyncLogs
 {
     public interface IDataSyncLogAppService : ITransientDependency, IApplicationService
     {
-        Task<List<DataSyncLog>> LoadLog(DardDTO input);
+        Task<List<DataSyncLog>> LoadLog();
     }
 }
