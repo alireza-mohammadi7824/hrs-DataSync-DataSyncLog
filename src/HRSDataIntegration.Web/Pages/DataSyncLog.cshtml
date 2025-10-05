@@ -1,207 +1,226 @@
 ﻿@page
 @model HRSDataIntegration.Web.Pages.DataSyncLogModel
 @{
-    ViewData["Title"] = "DataSync Logs";
-}
-@section styles {
-    <abp-style src="/Pages/Index.css" />
+    ViewData["Title"] = "Data Sync Logs";
 }
 
-<div class="card shadow-sm">
-    <div class="card-header bg-light">
-        <h4 class="mb-0"> DataSync Logs</h4>
-    </div>
-    <div class="card-body">
 
-        
-        <form method="get" class="row g-2 mb-3">
-            <div class="col-md-4">
-                <input name="Query" value="@Model.Query" class="form-control"
-                       placeholder="Search in Type / Exception..." />
-            </div>
 
-            <div class="col-md-2">
-                <select name="IsDoneFilter" class="form-select">
-                    <option value="" selected="@(Model.IsDoneFilter == null)">All</option>
-                    <option value="true" selected="@(Model.IsDoneFilter == true)">Done (true)</option>
-                    <option value="false" selected="@(Model.IsDoneFilter == false)">Not Done (false)</option>
-                </select>
-            </div>
+<div class="container my-4">
+    <h2 class="mb-3">Data Sync Logs</h2>
 
-            <div class="col-md-2">
-                <input type="date" name="FromDate" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                       class="form-control" placeholder="From date" />
-            </div>
-            <div class="col-md-2">
-                <input type="date" name="ToDate" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
-                       class="form-control" placeholder="To date" />
-            </div>
+   
+    <form method="get" class="row gy-2 gx-3 align-items-end border rounded p-3 mb-3 bg-light">
+        <div class="col-md-3">
+            <label class="form-label" for="Query">Search (Type / Exception / GUID)</label>
+            <input class="form-control" id="Query" name="Query" value="@Model.Query" />
+        </div>
 
-            <div class="col-md-2 d-grid">
-                <button class="btn btn-primary" type="submit">🔍 Search</button>
-            </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="IsDoneFilter">Status</label>
+         
+            <select class="form-select" asp-for="IsDoneFilter" asp-items="Model.StatusItems"></select>
+        </div>
 
-           
-            <input type="hidden" name="PageSize" value="@Model.PageSize" />
+        <div class="col-md-2">
+            <label class="form-label" for="FromDate">From</label>
+            <input type="date" class="form-control" id="FromDate" name="FromDate" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label" for="ToDate">To</label>
+            <input type="date" class="form-control" id="ToDate" name="ToDate" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+
+        <div class="col-md-1">
+            <label class="form-label" asp-for="PageSize">Page size</label>
+            <select class="form-select" asp-for="PageSize" asp-items="Model.PageSizeItems"></select>
+        </div>
+
+        <div class="col-md-2 text-end">
+      
             <input type="hidden" name="SortOrder" value="@Model.SortOrder" />
-            <input type="hidden" name="Page" value="@Model.Page" />
-        </form>
 
-        
-        <table class="table table-bordered table-hover align-middle custom-table">
-            <thead class="custom-header">
-                <tr>
-                    <th style="width:6%">Number</th>
+            <input type="hidden" name="p" value="1" />
 
-                    <th style="width:16%">
-                        <a asp-page="./DataSyncLog" class="header-link"
-                           asp-route-sortOrder="@Model.GetSortOrder("CreationTime")"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@Model.IsDoneFilter"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-Page="1"
-                           asp-route-PageSize="@Model.PageSize">
-                            CREATION TIME @Model.SortIcon("CreationTime")
-                        </a>
-                    </th>
+            <button class="btn btn-primary me-2" type="submit">Apply</button>
+            <a class="btn btn-outline-secondary" asp-page="./DataSyncLog">Clear</a>
+        </div>
+    </form>
 
-                    <th style="width:18%">
-                        <a asp-page="./DataSyncLog" class="header-link"
-                           asp-route-sortOrder="@Model.GetSortOrder("Type")"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@Model.IsDoneFilter"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-Page="1"
-                           asp-route-PageSize="@Model.PageSize">
-                            TYPE @Model.SortIcon("Type")
-                        </a>
-                    </th>
-
-                    <th style="width:12%">
-                        <a asp-page="./DataSyncLog" class="header-link"
-                           asp-route-sortOrder="@Model.GetSortOrder("IsDone")"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@Model.IsDoneFilter"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-Page="1"
-                           asp-route-PageSize="@Model.PageSize">
-                            IS DONE @Model.SortIcon("IsDone")
-                        </a>
-                    </th>
-
-                    <th style="width:30%">
-                        <span class="header-text">EXCEPTION MESSAGE</span>
-                    </th>
-
-                    <th style="width:18%">
-                        <a asp-page="./DataSyncLog" class="header-link"
-                           asp-route-sortOrder="@Model.GetSortOrder("LastModificationTime")"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@Model.IsDoneFilter"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-Page="1"
-                           asp-route-PageSize="@Model.PageSize">
-                            LAST MODIFIED @Model.SortIcon("LastModificationTime")
-                        </a>
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @{
-                    var startIndex = (Model.Page - 1) * Model.PageSize;
-                }
-                @for (int i = 0; i < Model.Logs.Count; i++)
-                {
-                    var item = Model.Logs[i];
+    @if (Model.TotalCount == 0)
+    {
+        <div class="alert alert-info">No data to display.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead>
                     <tr>
-                        <td class="text-center fw-semibold">@((startIndex) + i + 1)</td>
-                        <td class="text-center">@item.CreationTime</td>
-                        <td class="text-center">@item.Type</td>
-                        <td class="text-center">
-                            @if (item.IsDone == true)
-                            {
-                                <span class="badge bg-success">True</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">False</span>
-                            }
-                        </td>
-                        <td class="text-center">@item.ExceptionMessage</td>
-                        <td class="text-center">@item.LastModificationTime</td>
+                        <th>
+                            <a asp-page="./DataSyncLog" class="text-decoration-none"
+                               asp-route-SortOrder="@Model.GetSortOrder("CreationTime")"
+                               asp-route-Query="@Model.Query"
+                               asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-p="1"
+                               asp-route-PageSize="@Model.PageSize">
+                                CREATION TIME @Model.SortIcon("CreationTime")
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-page="./DataSyncLog" class="text-decoration-none"
+                               asp-route-SortOrder="@Model.GetSortOrder("LastModificationTime")"
+                               asp-route-Query="@Model.Query"
+                               asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-p="1"
+                               asp-route-PageSize="@Model.PageSize">
+                                LAST MODIFIED @Model.SortIcon("LastModificationTime")
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-page="./DataSyncLog" class="text-decoration-none"
+                               asp-route-SortOrder="@Model.GetSortOrder("Type")"
+                               asp-route-Query="@Model.Query"
+                               asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-p="1"
+                               asp-route-PageSize="@Model.PageSize">
+                                TYPE @Model.SortIcon("Type")
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-page="./DataSyncLog" class="text-decoration-none"
+                               asp-route-SortOrder="@Model.GetSortOrder("IsDone")"
+                               asp-route-Query="@Model.Query"
+                               asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-p="1"
+                               asp-route-PageSize="@Model.PageSize">
+                                IS DONE @Model.SortIcon("IsDone")
+                            </a>
+                        </th>
+                        <th>EXCEPTION</th>
+                        <th>ID</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Logs)
+                    {
+                        <tr>
+                            <td>@row.CreationTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@(row.LastModificationTime.HasValue? row.LastModificationTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "-")</td>
+                            <td>@row.Type</td>
+                            <td>
+                                @if (row.IsDone == true)
+                                {
+                                    <span class="badge bg-success">Done</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-secondary">Not Done</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(row.ExceptionMessage))
+                                {
+                                    var msg = row.ExceptionMessage.Length > 120 ? row.ExceptionMessage.Substring(0, 120) + "…" : row.ExceptionMessage;
+                                    <span title="@row.ExceptionMessage">@msg</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td><code>@row.Id</code></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pager -->
-        <nav aria-label="Logs pagination">
-            <ul class="pagination justify-content-center">
-
-                @* Prev *@
-                @if (Model.Page <= 1)
-                {
-                    <li class="page-item disabled"><span class="page-link">« Prev</span></li>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted">
+                @{
+                    var from = (Model.Page - 1) * Model.PageSize + 1;
+                    var to = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
                 }
-                else
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="./DataSyncLog"
-                           asp-route-Page="@(Model.Page - 1)"
-                           asp-route-PageSize="@Model.PageSize"
-                           asp-route-SortOrder="@Model.SortOrder"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">« Prev</a>
-                    </li>
-                }
+                Showing @from–@to of @Model.TotalCount
+            </div>
 
-                @* Numbers *@
-                @for (int p = 1; p <= Model.TotalPages; p++)
-                {
-                    if (p == Model.Page)
+            <nav aria-label="Logs pagination">
+                <ul class="pagination mb-0">
+
+                    @* Prev *@
+                    @if (Model.Page <= 1)
                     {
-                        <li class="page-item active"><span class="page-link">@p</span></li>
+                        <li class="page-item disabled"><span class="page-link">« Prev</span></li>
                     }
                     else
                     {
                         <li class="page-item">
                             <a class="page-link" asp-page="./DataSyncLog"
-                               asp-route-Page="@p"
+                               asp-route-p="@(Model.Page - 1)"
                                asp-route-PageSize="@Model.PageSize"
                                asp-route-SortOrder="@Model.SortOrder"
                                asp-route-Query="@Model.Query"
                                asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
                                asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">@p</a>
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">« Prev</a>
                         </li>
                     }
-                }
 
-                @* Next *@
-                @if (Model.TotalPages <= 1 || Model.Page >= Model.TotalPages)
-                {
-                    <li class="page-item disabled"><span class="page-link">Next »</span></li>
-                }
-                else
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-page="./DataSyncLog"
-                           asp-route-Page="@(Model.Page + 1)"
-                           asp-route-PageSize="@Model.PageSize"
-                           asp-route-SortOrder="@Model.SortOrder"
-                           asp-route-Query="@Model.Query"
-                           asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
-                           asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
-                           asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">Next »</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                    @* Numbers *@
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        if (p == Model.Page)
+                        {
+                            <li class="page-item active"><span class="page-link">@p</span></li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-page="./DataSyncLog"
+                                   asp-route-p="@p"
+                                   asp-route-PageSize="@Model.PageSize"
+                                   asp-route-SortOrder="@Model.SortOrder"
+                                   asp-route-Query="@Model.Query"
+                                   asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                                   asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                                   asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">@p</a>
+                            </li>
+                        }
+                    }
 
+                    @* Next *@
+                    @if (Model.TotalPages <= 1 || Model.Page >= Model.TotalPages)
+                    {
+                        <li class="page-item disabled"><span class="page-link">Next »</span></li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-page="./DataSyncLog"
+                               asp-route-p="@(Model.Page + 1)"
+                               asp-route-PageSize="@Model.PageSize"
+                               asp-route-SortOrder="@Model.SortOrder"
+                               asp-route-Query="@Model.Query"
+                               asp-route-IsDoneFilter="@(Model.IsDoneFilter?.ToString())"
+                               asp-route-FromDate="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                               asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))">Next »</a>
+                        </li>
+                    }
+
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
