@@ -4,13 +4,16 @@
     ViewData["Title"] = "Data Sync Logs";
 }
 
+@section styles {
+    <abp-style src="/Pages/Index.css" />
+}
 
-
-<div class="container my-4">
-    <h2 class="mb-3">Data Sync Logs</h2>
+<div id="dsl" class="container my-4 text-center">
+    <h2 class="page-title mb-3">Data Sync Logs</h2>
 
    
-    <form method="get" class="row gy-2 gx-3 align-items-end border rounded p-3 mb-3 bg-light">
+    <form method="get" class="filter-bar row gy-2 gx-3 align-items-end justify-content-center border rounded p-3 mb-3 bg-light">
+
         <div class="col-md-3">
             <label class="form-label" for="Query">Search (Type / Exception / GUID)</label>
             <input class="form-control" id="Query" name="Query" value="@Model.Query" />
@@ -37,15 +40,13 @@
             <select class="form-select" asp-for="PageSize" asp-items="Model.PageSizeItems"></select>
         </div>
 
-        <div class="col-md-2 text-end">
-      
+        <div class="col-md-2 actions">
             <input type="hidden" name="SortOrder" value="@Model.SortOrder" />
-
             <input type="hidden" name="p" value="1" />
-
             <button class="btn btn-primary me-2" type="submit">Apply</button>
             <a class="btn btn-outline-secondary" asp-page="./DataSyncLog">Clear</a>
         </div>
+
     </form>
 
     @if (Model.TotalCount == 0)
@@ -103,7 +104,7 @@
                                asp-route-ToDate="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
                                asp-route-p="1"
                                asp-route-PageSize="@Model.PageSize">
-                                IS DONE @Model.SortIcon("IsDone")
+                                Status @Model.SortIcon("IsDone")
                             </a>
                         </th>
                         <th>EXCEPTION</th>
@@ -125,7 +126,7 @@
                                 else
                                 {
 
-                                    <span class="badge bg-secondary">Not Done</span>
+                                    <span class="badge bg-danger">Not Done</span>
                                 }
                             </td>
                             <td>
@@ -147,7 +148,7 @@
         </div>
 
         <!-- Pager -->
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex logs-footer align-items-center flex-column flex-md-row">
             <div class="text-muted">
                 @{
                     var from = (Model.Page - 1) * Model.PageSize + 1;
@@ -156,7 +157,7 @@
                 Showing @from–@to of @Model.TotalCount
             </div>
 
-            <nav aria-label="Logs pagination">
+            <nav aria-label="Logs pagination justify-content-center">
                 <ul class="pagination mb-0">
 
                     @* Prev *@

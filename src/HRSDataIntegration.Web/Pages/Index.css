@@ -1,4 +1,4 @@
-/* Getting-Started */
+﻿/* Getting-Started */
 .starting-content {
     position: relative;
     z-index: 2;
@@ -48,5 +48,96 @@
     text-align: center;
     font-size: 13px;
 }
+:root {
+    --font-ui: "Vazirmatn", "IRANSansX", "Inter", "Segoe UI", Roboto, Helvetica, Arial, Tahoma, sans-serif;
+    --font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+    --title-color: #0b1324;
+    --muted-color: #6b7280;
+    --th-color: #4b5563;
+}
+
+html, body {
+    font-family: var(--font-ui);
+}
+
+/* Page title */
+#dsl .page-title {
+    font-weight: 800;
+    letter-spacing: .2px;
+    color: var(--title-color);
+    font-size: clamp(1.25rem, 1vw + 1rem, 1.75rem);
+    line-height: 1.25;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Center everything in filter bar */
+#dsl form.filter-bar {
+    justify-content: center;
+    text-align: center;
+}
+
+    #dsl form.filter-bar .form-label {
+        font-weight: 700;
+        color: var(--th-color);
+        font-size: .9rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    #dsl form.filter-bar .form-control,
+    #dsl form.filter-bar .form-select {
+        text-align: center;
+    }
+
+    #dsl form.filter-bar select.form-select {
+        text-align-last: center;
+    }
+    /* center selected item in modern browsers */
+    #dsl form.filter-bar .actions {
+        text-align: center !important;
+    }
+
+/* Table */
+#dsl table.table {
+    text-align: center;
+}
+
+    #dsl table.table thead th {
+        font-weight: 700;
+        font-size: .875rem;
+        color: var(--th-color);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    #dsl table.table th, #dsl table.table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+#dsl code {
+    font-family: var(--font-mono);
+    font-size: .875rem;
+}
+
+/* Footer: Showing + Pagination */
+#dsl .logs-footer {
+    justify-content: center !important;
+    gap: .75rem;
+}
+
+    #dsl .logs-footer .text-muted {
+        color: var(--muted-color) !important;
+        text-align: center;
+    }
+
+#dsl nav[aria-label="Logs pagination"] .pagination {
+    justify-content: center;
+}
+
 
 /* Getting-Started End */
